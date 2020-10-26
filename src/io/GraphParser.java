@@ -1,6 +1,7 @@
 package io;
 
 import Solver.NaiveSolver;
+import Solver.Tester;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -102,6 +103,8 @@ public class GraphParser {
          * writing: 0.270s
          * reading: 1.802s
          *
+         * naive grounded: 2.743s
+         *
          */
         String longApx = "T-4-grd_8020_3_4.apx";
         String shortApx = "B-1-BA_40_60_2.apx";
@@ -110,7 +113,7 @@ public class GraphParser {
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
-        Path currentGroundedSolution = solutions.resolve("instances-" + currentFileName + "m-DC-GR-D.out");
+        Path currentGroundedSolution = solutions.resolve("instances-" + currentFileName + "m-SE-GR-D.out");
 
         long start0 = System.currentTimeMillis();
         Graph normalGraph = readGraph(currentInstance);
@@ -152,7 +155,14 @@ public class GraphParser {
         */
 
         NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
-        System.out.println("grounded: " + naiveSolver.computeGrounded());
+
+        long start5 = System.currentTimeMillis();
+        naiveSolver.computeGrounded();
+        System.out.println("grounded naive time: " + (System.currentTimeMillis() - start5));
+
+        Tester tester = new Tester(normalGraph, currentGroundedSolution);
+
+        System.out.println(tester.testGrounded(naiveSolver.computeGrounded()));
 
     }
 
