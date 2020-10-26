@@ -118,12 +118,6 @@ public class Graph implements Serializable {
 
     }
 
-    public void removeAttackedBy(Graph g, Collection<Vertex> attackers) {
-        attackers.parallelStream()
-                .flatMap(vertex -> g.successors(vertex).stream())
-                .collect(Collectors.toSet());
-    }
-
 //----------------------------------------------------------------------------------------------------------------------
 
     public Set<Vertex> successors(Vertex n) {
@@ -194,7 +188,6 @@ public class Graph implements Serializable {
     }
 
 //----------------------------------------------------------------------------------------------------------------------
-
 
     @Override
     public boolean equals(Object o) {

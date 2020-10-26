@@ -36,9 +36,8 @@ public class GroundedBenchmarker {
         GroundedBenchmarker gb = new GroundedBenchmarker(root);
         try {
             final Map<Path, Long> bench = gb.bench();
-            long start = System.currentTimeMillis();
+            // takes 5ms
             gb.printBench(bench, root.resolve("grounded_bench_unlimited.csv"));
-            System.out.println("printing took: " + (System.currentTimeMillis() - start));
         } catch ( IOException e ) {
             e.printStackTrace();
         }

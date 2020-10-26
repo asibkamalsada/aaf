@@ -68,9 +68,9 @@ public class GraphParser {
                     Matcher vertexMatcher = vertexPattern.matcher(line);
                     Matcher edgeMatcher = edgePattern.matcher(line);
                     if ( vertexMatcher.matches() ) {
-                        graph.addVertex(new Vertex(vertexMatcher.group(1)));
+                        graph.addVertex(vertexMatcher.group(1));
                     } else if ( edgeMatcher.matches() ) {
-                        graph.addEdge(new Edge(edgeMatcher.group(1), edgeMatcher.group(2)));
+                        graph.addEdge(edgeMatcher.group(1), edgeMatcher.group(2));
                     }
                 },
                 Graph::addGraph
