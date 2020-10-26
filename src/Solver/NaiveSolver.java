@@ -3,8 +3,8 @@ package Solver;
 import graphical.Graph;
 import graphical.Vertex;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class NaiveSolver {
 
@@ -18,8 +18,21 @@ public class NaiveSolver {
 
     public Set<Vertex> computeGrounded() {
         if ( grounded == null ) {
-            Graph gG = Graph.copy(graph);
-            Set<Vertex> accepted = new HashSet<>();
+            Graph copiedGraph = Graph.copy(graph);
+            Set<Vertex> accepted;
+
+            do {
+                accepted = copiedGraph.getUnattacked();
+            } while (
+                    copiedGraph.removeVertices(
+                            accepted.parallelStream()
+                                    .flatMap(vertex -> copiedGraph.successors(vertex).stream())
+                                    .collect(Collectors.toSet())
+                    )
+            );
+
+            grounded = accepted;
+
         }
         return grounded;
     }

@@ -91,12 +91,37 @@ public class Graph implements Serializable {
     public void removeVertex(Vertex vertex) {
         vertices.remove(vertex);
         edges.removeIf(edge -> edge.getAttacker().equals(vertex) || edge.getAttacked().equals(vertex));
+
+        allPredecessors.values().forEach(predecessor -> predecessor.remove(vertex));
+        allPredecessors.remove(vertex);
+
+        allSuccessors.values().forEach(successor -> successor.remove(vertex));
+        allSuccessors.remove(vertex);
     }
 
-    public void removeIf(Predicate<? super Vertex> filter) {
+    public boolean removeIf(Predicate<? super Vertex> filter) {
         Set<Vertex> toBeRemoved = vertices.parallelStream().filter(filter).collect(Collectors.toSet());
-        vertices.removeAll(toBeRemoved);
+        return removeVertices(toBeRemoved);
+    }
+
+    public boolean removeVertices(Collection<Vertex> toBeRemoved) {
+        final boolean b = vertices.removeAll(toBeRemoved);
         edges.removeIf(edge -> toBeRemoved.contains(edge.getAttacker()) || toBeRemoved.contains(edge.getAttacked()));
+
+        allPredecessors.values().forEach(predecessor -> predecessor.removeAll(toBeRemoved));
+        allPredecessors.keySet().removeAll(toBeRemoved);
+
+        allSuccessors.values().forEach(successor -> successor.removeAll(toBeRemoved));
+        allSuccessors.keySet().removeAll(toBeRemoved);
+
+        return b;
+
+    }
+
+    public void removeAttackedBy(Graph g, Collection<Vertex> attackers) {
+        attackers.parallelStream()
+                .flatMap(vertex -> g.successors(vertex).stream())
+                .collect(Collectors.toSet());
     }
 
 //----------------------------------------------------------------------------------------------------------------------
