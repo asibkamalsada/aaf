@@ -1,7 +1,6 @@
 package io;
 
 import Solver.NaiveSolver;
-import Solver.Tester;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -93,6 +92,8 @@ public class GraphParser {
          * 1. run successors: 127.624s
          * 1. run predecessors: 142.606s
          *
+         * calcPreSucc: 0.728s
+         *
          * serializable without pre/succ:
          * writing: 18.387s
          * reading: 44.465s
@@ -105,37 +106,53 @@ public class GraphParser {
         String longApx = "T-4-grd_8020_3_4.apx";
         String shortApx = "B-1-BA_40_60_2.apx";
 
-        String currentFileName = shortApx;
+        String currentFileName = longApx;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
         Path currentGroundedSolution = solutions.resolve("instances-" + currentFileName + "m-DC-GR-D.out");
 
         long start0 = System.currentTimeMillis();
-        Graph g = readGraph(currentInstance);
+        Graph normalGraph = readGraph(currentInstance);
         System.out.println("Graph-building: " + (System.currentTimeMillis() - start0));
 
+        Graph copiedGraph = Graph.copy(normalGraph);
         /*
         for ( int i = 1; i <= 2; i++ ) {
             long start1 = System.currentTimeMillis();
-            g.getVertices().forEach(g::predecessors);
+            normalGraph.getVertices().forEach(normalGraph::predecessors);
             System.out.println(i + ". run predecessors: " + (System.currentTimeMillis() - start1));
         }
         for ( int i = 1; i <= 2; i++ ) {
             long start1 = System.currentTimeMillis();
-            g.getVertices().forEach(g::successors);
+            normalGraph.getVertices().forEach(normalGraph::successors);
             System.out.println(i + ". run successors: " + (System.currentTimeMillis() - start1));
         }
+        */
+        long start4 = System.currentTimeMillis();
+        copiedGraph.calcPreSucc();
+        System.out.println("calcPreSucc: " + (System.currentTimeMillis() - start4));
 
+        normalGraph = Graph.copy(copiedGraph);
 
+        /*
         long start2 = System.currentTimeMillis();
-        writeGraphToFile(g, currentGraphFile.toString());
+        writeGraphToFile(normalGraph, currentGraphFile.toString());
         System.out.println("writing: " + (System.currentTimeMillis() - start2));
 
         long start3 = System.currentTimeMillis();
-        Graph g2 = readGraphFromFile(currentGraphFile.toString());
+        Graph graphFromFile = readGraphFromFile(currentGraphFile.toString());
         System.out.println("reading: " + (System.currentTimeMillis() - start3));
+
+        System.out.println("vertices: " + copiedGraph.getVertices());
+        System.out.println("predecessors:");
+        copiedGraph.getAllPredecessors().forEach((key, value) -> System.out.println(key + "->" + value));
+        System.out.println("successors:");
+        copiedGraph.getAllSuccessors().forEach((key, value) -> System.out.println(key + "->" + value));
         */
+
+        NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
+        System.out.println("grounded: " + naiveSolver.computeGrounded());
 
     }
 
@@ -146,7 +163,7 @@ public class GraphParser {
     }
 
     private static Graph readGraphFromFile(String kryoPath) throws FileNotFoundException {
-        try (Input input = new Input(new FileInputStream(kryoPath))) {
+        try ( Input input = new Input(new FileInputStream(kryoPath)) ) {
             return kryo.readObject(input, Graph.class);
         }
     }
