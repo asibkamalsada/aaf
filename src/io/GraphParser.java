@@ -1,7 +1,7 @@
 package io;
 
-import Solver.NaiveSolver;
-import Solver.Tester;
+import solver.NaiveSolver;
+import benching.Tester;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -160,9 +160,7 @@ public class GraphParser {
         naiveSolver.computeGrounded();
         System.out.println("grounded naive time: " + (System.currentTimeMillis() - start5));
 
-        Tester tester = new Tester(normalGraph, currentGroundedSolution);
-
-        System.out.println(tester.testGrounded(naiveSolver.computeGrounded()));
+        System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), currentGroundedSolution));
 
     }
 

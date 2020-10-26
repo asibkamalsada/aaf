@@ -1,4 +1,4 @@
-package Solver;
+package solver;
 
 import graphical.Graph;
 import graphical.Vertex;

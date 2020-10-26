@@ -1,7 +1,6 @@
-package execution;
+package benching;
 
-import Solver.NaiveSolver;
-import Solver.Tester;
+import solver.NaiveSolver;
 import graphical.Graph;
 import io.GraphParser;
 
@@ -35,9 +34,10 @@ public class GroundedBenchmarker {
         );
         GroundedBenchmarker gb = new GroundedBenchmarker(root);
         try {
+            // takes roughly 18min
             final Map<Path, Long> bench = gb.bench();
             // takes 5ms
-            gb.printBench(bench, root.resolve("grounded_bench_unlimited.csv"));
+            gb.printBench(bench, root.resolve("grounded_bench_unlimited_refactored.csv"));
         } catch ( IOException e ) {
             e.printStackTrace();
         }
@@ -56,8 +56,7 @@ public class GroundedBenchmarker {
                         try {
                             Graph g = GraphParser.readGraph(path);
                             NaiveSolver ns = new NaiveSolver(g);
-                            Tester t = new Tester(g, groundedSolutionPath(path));
-                            if ( !t.testGrounded(ns.computeGrounded()) ) {
+                            if ( !Tester.testGrounded(ns.computeGrounded(), groundedSolutionPath(path)) ) {
                                 output += path + "\nnicht korrekt ermittelt worden." + '\n';
                             }
                             output += ((System.currentTimeMillis() - start) / 1000.) + "s: " + path + '\n';
