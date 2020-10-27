@@ -30,7 +30,7 @@ public class GroundedBenchmarker extends Benchmarker {
             // takes roughly 18min
             final Map<Path, Long> bench = gb.bench();
             // takes 5ms
-            gb.printBench(bench, "grounded_bench_limit_20_abstract.csv");
+            gb.printBench(bench);
         } catch ( IOException e ) {
             e.printStackTrace();
         }

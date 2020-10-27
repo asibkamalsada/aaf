@@ -38,10 +38,10 @@ public class CfBenchmarker extends Benchmarker {
         );
         Benchmarker cfb = new CfBenchmarker(root);
         try {
-            // takes roughly 18min
+            // takes ???
             final Map<Path, Long> bench = cfb.bench();
             // takes 5ms
-            cfb.printBench(bench, "grounded_bench_unlimited_refactored.csv");
+            cfb.printBench(bench);
         } catch ( IOException e ) {
             e.printStackTrace();
         }

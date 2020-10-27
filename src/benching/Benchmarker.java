@@ -8,6 +8,8 @@ import solver.NaiveSolver;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,6 +80,20 @@ public abstract class Benchmarker {
 
     public void printBench(Map<Path, Long> bench, String filename) throws IOException {
         printBench(bench, benchmarksPath.resolve(filename));
+    }
+
+    public void printBench(Map<Path, Long> bench) throws IOException {
+        printBench(
+                bench,
+                this.getClass().getName().replace("Benchmarker", "").toLowerCase() +
+                        "_" +
+                        currentDateAndTime() +
+                        ".csv"
+        );
+    }
+
+    public static String currentDateAndTime() {
+        return LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd_HH-mm-ss"));
     }
 
     private static final String PREFIX1 = "instances-";
