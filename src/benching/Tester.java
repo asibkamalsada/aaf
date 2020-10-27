@@ -13,4 +13,8 @@ public class Tester {
         return SolutionParser.parseGrounded(groundedSolutionPath).equals(toBeTestedGrounded);
     }
 
+    public static boolean testConflictFree(Set<Set<Vertex>> toBeTestedConflictFree, Path conflictFreeSolutionPath) {
+        toBeTestedConflictFree.forEach(System.out::println);
+        return true;
+    }
 }

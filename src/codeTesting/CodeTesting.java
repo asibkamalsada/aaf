@@ -42,7 +42,7 @@ public class CodeTesting {
         String longApx = "T-4-grd_8020_3_4.apx";
         String shortApx = "B-1-BA_40_60_2.apx";
 
-        String currentFileName = longApx;
+        String currentFileName = shortApx;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
@@ -52,8 +52,8 @@ public class CodeTesting {
         Graph normalGraph = GraphParser.readGraph(currentInstance);
         System.out.println("Graph-building: " + (System.currentTimeMillis() - start0));
 
-        Graph copiedGraph = Graph.copy(normalGraph);
         /*
+        Graph copiedGraph = Graph.copy(normalGraph);
         for ( int i = 1; i <= 2; i++ ) {
             long start1 = System.currentTimeMillis();
             normalGraph.getVertices().forEach(normalGraph::predecessors);
@@ -64,14 +64,14 @@ public class CodeTesting {
             normalGraph.getVertices().forEach(normalGraph::successors);
             System.out.println(i + ". run successors: " + (System.currentTimeMillis() - start1));
         }
-        */
+
         long start4 = System.currentTimeMillis();
         copiedGraph.calcPreSucc();
         System.out.println("calcPreSucc: " + (System.currentTimeMillis() - start4));
 
         normalGraph = Graph.copy(copiedGraph);
 
-        /*
+
         long start2 = System.currentTimeMillis();
         writeGraphToFile(normalGraph, currentGraphFile.toString());
         System.out.println("writing: " + (System.currentTimeMillis() - start2));
@@ -88,12 +88,16 @@ public class CodeTesting {
         */
 
         NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
-
+        /*
         long start5 = System.currentTimeMillis();
         naiveSolver.computeGrounded();
         System.out.println("grounded naive time: " + (System.currentTimeMillis() - start5));
 
         System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), currentGroundedSolution));
+        */
+
+        Path currentConflictFreeSolution = null;
+        Tester.testConflictFree(naiveSolver.computeConflictFree(), currentConflictFreeSolution);
 
     }
 
