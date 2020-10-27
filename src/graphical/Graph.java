@@ -73,6 +73,10 @@ public class Graph implements Serializable {
     //----------------------------------------------------------------------------------------------------------------------
 
     public static Graph copy(Graph g) {
+        if (g.allPredecessors == null && g.allSuccessors == null){
+            return new Graph(new HashSet<>(g.getVertices()), new HashSet<>(g.getEdges()));
+        }
+
         HashMap<Vertex, Set<Vertex>> newPredecessors = new HashMap<>();
         g.allPredecessors.forEach((key, value) -> newPredecessors.put(key, new HashSet<>(value)));
         HashMap<Vertex, Set<Vertex>> newSuccessors = new HashMap<>();

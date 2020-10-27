@@ -59,7 +59,7 @@ public class GraphParser {
                 throw new Exception("File was not readable (maybe incorrect file extension)");
         }
 
-        return Files.lines(absolutePath).collect(
+        Graph result = Files.lines(absolutePath).collect(
                 Graph::new,
                 (graph, line) -> {
                     Matcher vertexMatcher = vertexPattern.matcher(line);
@@ -72,6 +72,8 @@ public class GraphParser {
                 },
                 Graph::addGraph
         );
+        result.calcPreSucc();
+        return result;
     }
 
     private static void writeGraphToFile(Graph g, String kryoPath) throws FileNotFoundException {
