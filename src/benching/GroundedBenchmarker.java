@@ -1,29 +1,24 @@
 package benching;
 
-import solver.NaiveSolver;
 import graphical.Graph;
+import graphical.Vertex;
 import io.GraphParser;
+import solver.NaiveSolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GroundedBenchmarker {
-    public Path instancesPath;
-    public Path graphsPath;
-    public Path solutionsPath;
-    public Path root;
+public class GroundedBenchmarker extends Benchmarker {
 
     public GroundedBenchmarker(Path root) {
-        this.root = root;
-
-        instancesPath = root.resolve("instances");
-        graphsPath = root.resolve("graphs");
-        solutionsPath = root.resolve("reference-results");
+        super(root);
     }
 
     public static void main(String[] args) {
@@ -37,39 +32,19 @@ public class GroundedBenchmarker {
             // takes roughly 18min
             final Map<Path, Long> bench = gb.bench();
             // takes 5ms
-            gb.printBench(bench, root.resolve("grounded_bench_unlimited_refactored.csv"));
+            gb.printBench(bench, root.resolve("grounded_bench_limit_20_abstract.csv"));
         } catch ( IOException e ) {
             e.printStackTrace();
         }
     }
 
-    public Map<Path, Long> bench() throws IOException {
-        try ( Stream<Path> paths = Files.list(instancesPath) ) {
-            return paths.parallel()
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith("apx"))
-                    /*.unordered()
-                    .limit(20)*/
-                    .collect(Collectors.toMap(path -> path, path -> {
-                        String output = "";
-                        long start = System.currentTimeMillis();
-                        try {
-                            Graph g = GraphParser.readGraph(path);
-                            NaiveSolver ns = new NaiveSolver(g);
-                            if ( !Tester.testGrounded(ns.computeGrounded(), groundedSolutionPath(path)) ) {
-                                output += path + "\nnicht korrekt ermittelt worden." + '\n';
-                            }
-                            output += ((System.currentTimeMillis() - start) / 1000.) + "s: " + path + '\n';
-                        } catch ( Exception e ) {
-                            output += e.getMessage() + '\n';
-                        }
-                        //System.out.println(output);
-                        return System.currentTimeMillis() - start;
-                    }));
-        }
+    @Override
+    public Set<Set<Vertex>> compute(NaiveSolver ns) {
+        return Collections.singleton(ns.computeGrounded());
     }
 
-    private Path groundedSolutionPath(Path instancePath) throws IOException {
+    @Override
+    public Path solutionPath(Path instancePath) throws IOException {
         try ( Stream<Path> paths = Files.list(solutionsPath) ) {
             return paths
                     .filter(path -> path.toString().endsWith(instancePath.getFileName() + "m-SE-GR-D.out"))
@@ -78,19 +53,9 @@ public class GroundedBenchmarker {
         }
     }
 
-    private void printBench(Map<Path, Long> bench, Path outFile) throws IOException {
-        StringBuilder csvContent = bench.entrySet().stream().collect(
-                StringBuilder::new,
-                (currentString, entry) -> currentString.append(entry.getKey()).append(";").append(entry.getValue()).append("\n"),
-                StringBuilder::append
-        );
-
-        Files.write(outFile, csvContent.toString().getBytes());
-
+    @Override
+    public boolean isResultCorrect(Set<Set<Vertex>> toBeTested, Path solutionPath) throws IOException {
+        return Tester.testGrounded(toBeTested.stream().findFirst().get(), solutionPath);
     }
-
-    private static final String PREFIX1 = "instances-";
-    private static final String PREFIX2 = "iccma-2019-";
-    private static final String PREFIX3 = "sub2-";
 
 }

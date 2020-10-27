@@ -1,5 +1,6 @@
 package codeTesting;
 
+import benching.GroundedBenchmarker;
 import benching.Tester;
 import graphical.Graph;
 import io.GraphParser;
@@ -39,10 +40,12 @@ public class CodeTesting {
          * naive grounded: 2.743s
          *
          */
+        String emptyGrounded = "Small-result-b83.apx";
+
         String longApx = "T-4-grd_8020_3_4.apx";
         String shortApx = "B-1-BA_40_60_2.apx";
 
-        String currentFileName = shortApx;
+        String currentFileName = emptyGrounded;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
@@ -88,19 +91,41 @@ public class CodeTesting {
         */
 
         NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
-        /*
+
         long start5 = System.currentTimeMillis();
         naiveSolver.computeGrounded();
         System.out.println("grounded naive time: " + (System.currentTimeMillis() - start5));
 
-        System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), currentGroundedSolution));
-        */
+        GroundedBenchmarker gb = new GroundedBenchmarker(root);
+
+        System.out.println(naiveSolver.computeGrounded());
+
+        System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), gb.solutionPath(currentInstance)));
+
 
         Path currentConflictFreeSolution = null;
         long start6 = System.currentTimeMillis();
-        Tester.testConflictFree(naiveSolver.computeConflictFree(), currentConflictFreeSolution);
-        System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
+        //Tester.testConflictFree(naiveSolver.computeConflictFree(), currentConflictFreeSolution);
+        /*
+        for ( Vertex a : normalGraph.getVertices() ) {
+            System.out.print(normalGraph.predecessors(a));
+            System.out.println(naiveSolver.legalOptions(normalGraph.predecessors(a)).count());
+        }
+        */
+/*
+        StringBuilder sb = new StringBuilder("[\n");
 
+        naiveSolver.iterativerAnsatz().forEach((depth, resultLayer) -> {
+            sb.append("\t").append(resultLayer.size()).append(" ");
+            resultLayer.forEach(result -> sb.append(result).append(" "));
+            sb.append("\n");
+        });
+        sb.append("]");
+
+        System.out.println(sb);
+
+        System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
+*/
     }
 
 }

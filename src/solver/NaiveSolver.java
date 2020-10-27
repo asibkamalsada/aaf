@@ -42,6 +42,50 @@ public class NaiveSolver {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+
+    public Map<Integer, Set<Set<Vertex>>> iterativerAnsatz() {
+        /*
+         * Start: leere Menge
+         */
+
+        Map<Integer, Set<Set<Vertex>>> results = new HashMap<>();
+        Set<Set<Vertex>> result0 = new HashSet<>();
+        result0.add(new HashSet<>());
+        results.put(0, result0);
+
+        for ( int i = 0; i <= graph.getVertices().size(); i++ ) {
+            for ( Set<Vertex> previousCf : results.getOrDefault(i, Collections.emptySet()) ) {
+                Set<Set<Vertex>> resultOfCurrentDepth = new HashSet<>();
+                legalOptions(previousCf).forEach(vertex -> {
+                    Set<Vertex> foundCf = new HashSet<>(previousCf);
+                    foundCf.add(vertex);
+                    resultOfCurrentDepth.add(foundCf);
+                });
+                results.put(i + 1, resultOfCurrentDepth);
+            }
+        }
+
+        return results;
+    }
+
+    public Stream<Vertex> legalOptions(Set<Vertex> currentCf) {
+        return graph.getVertices().parallelStream().filter(generalVertex ->
+                !(
+                        (
+                                currentCf.contains(generalVertex)
+                        ) || (
+                                currentCf.parallelStream().anyMatch(cfVertex ->
+                                        (
+                                                graph.predecessors(cfVertex).contains(generalVertex)
+                                        ) || (
+                                                graph.successors(cfVertex).contains(generalVertex)
+                                        )
+                                )
+                        )
+                )
+        );
+    }
+
     public Set<Set<Vertex>> computeConflictFree() {
 
         Set<Vertex> looped = graph.getAllSuccessors().entrySet().parallelStream().unordered()
@@ -65,11 +109,13 @@ public class NaiveSolver {
         return result;
     }
 
+
+    private Set<Set<Vertex>> computeOneConflictFree(Set<Vertex> cf, Set<Vertex> blacklist) {
+        return null;
+    }
+
     private Set<Set<Vertex>> computeOneConflictFree(Set<Vertex> cf, Map<Vertex, Integer> blacklist) {
-        //System.out.println("blacklist:" + );
-        Set<Set<Vertex>> result = new HashSet<>();
-        result.add(cf);
-        return result;
+        return null;
     }
 
     private Map<Vertex, Integer> initializeBlacklist(Vertex initialVertex, Set<Vertex> looped) {

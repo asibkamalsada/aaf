@@ -81,7 +81,7 @@ public class Graph implements Serializable {
         g.allPredecessors.forEach((key, value) -> newPredecessors.put(key, new HashSet<>(value)));
         HashMap<Vertex, Set<Vertex>> newSuccessors = new HashMap<>();
         g.allSuccessors.forEach((key, value) -> newSuccessors.put(key, new HashSet<>(value)));
-        return new Graph(new HashSet<>(g.getVertices()), new HashSet<>(g.getEdges()), newPredecessors, newSuccessors);
+        return new Graph(new HashSet<>(g.getVertices()), new HashSet<>(g.getEdges()), newSuccessors, newPredecessors);
     }
 
     public void addGraph(Graph graph2) {
