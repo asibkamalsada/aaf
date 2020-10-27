@@ -12,8 +12,8 @@ public class Graph implements Serializable {
     private final Set<Vertex> vertices;
     private final Set<Edge> edges;
 
-    private final Map<Vertex, Set<Vertex>> allSuccessors;
-    private final Map<Vertex, Set<Vertex>> allPredecessors;
+    private Map<Vertex, Set<Vertex>> allSuccessors;
+    private Map<Vertex, Set<Vertex>> allPredecessors;
 
     public Graph(Set<Vertex> vertices, Set<Edge> edges, Map<Vertex, Set<Vertex>> allSuccessors, Map<Vertex,
             Set<Vertex>> allPredecessors) {
@@ -26,15 +26,12 @@ public class Graph implements Serializable {
     public Graph(Set<Vertex> vertices, Set<Edge> edges) {
         this.vertices = vertices;
         this.edges = edges;
-        allSuccessors = new HashMap<>();
-        allPredecessors = new HashMap<>();
+        calcPreSucc();
     }
 
     public Graph() {
         vertices = new HashSet<>();
         edges = new HashSet<>();
-        allSuccessors = new HashMap<>();
-        allPredecessors = new HashMap<>();
     }
 
     public void addVertex(Vertex n) {
@@ -65,21 +62,13 @@ public class Graph implements Serializable {
         return edges;
     }
 
-    public Map<Vertex, Set<Vertex>> getAllSuccessors() {
-        return allSuccessors;
-    }
-
-    public Map<Vertex, Set<Vertex>> getAllPredecessors() {
-        return allPredecessors;
-    }
-
-    //----------------------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
     public static Graph copy(Graph g) {
         HashMap<Vertex, Set<Vertex>> newPredecessors = new HashMap<>();
-        g.getAllPredecessors().forEach((key, value) -> newPredecessors.put(key, new HashSet<>(value)));
+        g.allPredecessors.forEach((key, value) -> newPredecessors.put(key, new HashSet<>(value)));
         HashMap<Vertex, Set<Vertex>> newSuccessors = new HashMap<>();
-        g.getAllSuccessors().forEach((key, value) -> newSuccessors.put(key, new HashSet<>(value)));
+        g.allSuccessors.forEach((key, value) -> newSuccessors.put(key, new HashSet<>(value)));
         return new Graph(new HashSet<>(g.getVertices()), new HashSet<>(g.getEdges()), newPredecessors, newSuccessors);
     }
 
@@ -121,70 +110,59 @@ public class Graph implements Serializable {
 //----------------------------------------------------------------------------------------------------------------------
 
     public Set<Vertex> successors(Vertex n) {
-        Set<Vertex> oldValue = allSuccessors.get(n);
-        if ( oldValue == null ) {
-            Set<Vertex> newValue = edges.parallelStream()
-                    .filter(e -> e.getAttacker().equals(n))
-                    .map(Edge::getAttacked)
-                    .collect(Collectors.toSet());
-            allSuccessors.put(n, newValue);
-            return newValue;
-        }
-        return oldValue;
+        return allSuccessors.get(n);
     }
 
     public Set<Vertex> predecessors(Vertex n) {
-        Set<Vertex> oldValue = allPredecessors.get(n);
-        if ( oldValue == null ) {
-            Set<Vertex> newValue = edges.parallelStream()
-                    .filter(e -> e.getAttacked().equals(n))
-                    .map(Edge::getAttacker)
-                    .collect(Collectors.toSet());
-            allPredecessors.put(n, newValue);
-            return newValue;
+        return allPredecessors.get(n);
+    }
+
+    public void calcPreSucc() {
+        if ( allPredecessors == null && allSuccessors == null ) {
+            allPredecessors = new HashMap<>();
+            allSuccessors = new HashMap<>();
+
+            List<HashMap<Vertex, Set<Vertex>>> l = edges.stream().collect(
+                    () -> new ArrayList<>(Arrays.asList(new HashMap<>(), new HashMap<>())),
+                    (maps, edge) -> {
+                        HashMap<Vertex, Set<Vertex>> tempSuccessors = maps.get(0);
+                        if ( tempSuccessors.containsKey(edge.getAttacker()) ) {
+                            tempSuccessors.get(edge.getAttacker()).add(edge.getAttacked());
+                        } else {
+                            tempSuccessors.put(edge.getAttacker(),
+                                    new HashSet<>(Collections.singleton(edge.getAttacked())));
+                        }
+
+                        HashMap<Vertex, Set<Vertex>> tempPredecessors = maps.get(1);
+                        if ( tempPredecessors.containsKey(edge.getAttacked()) ) {
+                            tempPredecessors.get(edge.getAttacked()).add(edge.getAttacker());
+                        } else {
+                            tempPredecessors.put(edge.getAttacked(),
+                                    new HashSet<>(Collections.singleton(edge.getAttacker())));
+                        }
+                    },
+                    (maps1, maps2) -> {
+                        maps1.get(0).putAll(maps2.get(0));
+                        maps1.get(1).putAll(maps2.get(1));
+                    }
+            );
+
+            vertices.forEach(vertex -> {
+                allSuccessors.putIfAbsent(vertex, new HashSet<>());
+                allPredecessors.putIfAbsent(vertex, new HashSet<>());
+            });
+
+            allSuccessors.putAll(l.get(0));
+            allPredecessors.putAll(l.get(1));
+        } else {
+            System.err.println("PreSucc already calculated");
         }
-        return oldValue;
     }
 
     public Set<Vertex> getUnattacked() {
         return vertices.parallelStream()
                 .filter(vertex -> predecessors(vertex).isEmpty())
                 .collect(Collectors.toSet());
-    }
-
-    public void calcPreSucc() {
-        List<HashMap<Vertex, Set<Vertex>>> l = edges.stream().collect(
-                () -> new ArrayList<>(Arrays.asList(new HashMap<>(), new HashMap<>())),
-                (maps, edge) -> {
-                    HashMap<Vertex, Set<Vertex>> tempSuccessors = maps.get(0);
-                    if ( tempSuccessors.containsKey(edge.getAttacker()) ) {
-                        tempSuccessors.get(edge.getAttacker()).add(edge.getAttacked());
-                    } else {
-                        tempSuccessors.put(edge.getAttacker(),
-                                new HashSet<>(Collections.singleton(edge.getAttacked())));
-                    }
-
-                    HashMap<Vertex, Set<Vertex>> tempPredecessors = maps.get(1);
-                    if ( tempPredecessors.containsKey(edge.getAttacked()) ) {
-                        tempPredecessors.get(edge.getAttacked()).add(edge.getAttacker());
-                    } else {
-                        tempPredecessors.put(edge.getAttacked(),
-                                new HashSet<>(Collections.singleton(edge.getAttacker())));
-                    }
-                },
-                (maps1, maps2) -> {
-                    maps1.get(0).putAll(maps2.get(0));
-                    maps1.get(1).putAll(maps2.get(1));
-                }
-        );
-
-        vertices.forEach(vertex -> {
-            allSuccessors.putIfAbsent(vertex, new HashSet<>());
-            allPredecessors.putIfAbsent(vertex, new HashSet<>());
-        });
-
-        allSuccessors.putAll(l.get(0));
-        allPredecessors.putAll(l.get(1));
     }
 
 //----------------------------------------------------------------------------------------------------------------------
