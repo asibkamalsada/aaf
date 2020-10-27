@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 public abstract class Benchmarker {
 
+    public Path benchmarksPath;
     public Path instancesPath;
     public Path graphsPath;
     public Path solutionsPath;
@@ -28,6 +29,7 @@ public abstract class Benchmarker {
         graphsPath = root.resolve("graphs");
         solutionsPath = root.resolve("reference-results");
         conargPath = root.resolve("conarg").resolve("distribution").resolve("conarg.exe");
+        benchmarksPath = root.resolve("benchmarks");
     }
 
     public Map<Path, Long> bench() throws IOException {
@@ -72,7 +74,10 @@ public abstract class Benchmarker {
         );
 
         Files.write(outFile, csvContent.toString().getBytes());
+    }
 
+    public void printBench(Map<Path, Long> bench, String filename) throws IOException {
+        printBench(bench, benchmarksPath.resolve(filename));
     }
 
     private static final String PREFIX1 = "instances-";
