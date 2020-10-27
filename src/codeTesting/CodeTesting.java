@@ -97,7 +97,9 @@ public class CodeTesting {
         */
 
         Path currentConflictFreeSolution = null;
+        long start6 = System.currentTimeMillis();
         Tester.testConflictFree(naiveSolver.computeConflictFree(), currentConflictFreeSolution);
+        System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
 
     }
 

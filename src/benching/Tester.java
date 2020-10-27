@@ -14,7 +14,9 @@ public class Tester {
     }
 
     public static boolean testConflictFree(Set<Set<Vertex>> toBeTestedConflictFree, Path conflictFreeSolutionPath) {
-        toBeTestedConflictFree.forEach(System.out::println);
+        /*System.out.println("[");
+        toBeTestedConflictFree.forEach(partialSolution -> System.out.println("\t" + partialSolution));
+        System.out.println("]");*/
         return true;
     }
 }

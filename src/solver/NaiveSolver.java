@@ -5,6 +5,7 @@ import graphical.Vertex;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class NaiveSolver {
 
@@ -54,7 +55,8 @@ public class NaiveSolver {
                 .flatMap(vertex ->
                         computeOneConflictFree(
                                 Collections.singleton(vertex),
-                                initializeBlacklist(looped, graph.successors(vertex), graph.predecessors(vertex))).stream()
+                                initializeBlacklist(vertex, looped)
+                        ).stream()
                 )
                 .collect(Collectors.toSet());
 
@@ -64,16 +66,18 @@ public class NaiveSolver {
     }
 
     private Set<Set<Vertex>> computeOneConflictFree(Set<Vertex> cf, Map<Vertex, Integer> blacklist) {
+        //System.out.println("blacklist:" + );
         Set<Set<Vertex>> result = new HashSet<>();
         result.add(cf);
         return result;
     }
 
-    @SafeVarargs
-    private final Map<Vertex, Integer> initializeBlacklist(Set<Vertex>... sets) {
-        return Arrays.stream(sets)
+    private Map<Vertex, Integer> initializeBlacklist(Vertex initialVertex, Set<Vertex> looped) {
+        return Stream.of(Collections.singleton(initialVertex), graph.predecessors(initialVertex),
+                graph.successors(initialVertex), looped)
                 .flatMap(Collection::stream)
-                .collect(
+                .distinct()
+                .<Map<Vertex, Integer>>collect(
                         HashMap::new,
                         this::addToBlacklist,
                         (map1, map2) -> map2.forEach((key, value) -> addToBlacklist(map1, key, value))
