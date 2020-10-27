@@ -62,7 +62,15 @@ public class Graph implements Serializable {
         return edges;
     }
 
-//----------------------------------------------------------------------------------------------------------------------
+    public Map<Vertex, Set<Vertex>> getAllSuccessors() {
+        return allSuccessors;
+    }
+
+    public Map<Vertex, Set<Vertex>> getAllPredecessors() {
+        return allPredecessors;
+    }
+
+    //----------------------------------------------------------------------------------------------------------------------
 
     public static Graph copy(Graph g) {
         HashMap<Vertex, Set<Vertex>> newPredecessors = new HashMap<>();
