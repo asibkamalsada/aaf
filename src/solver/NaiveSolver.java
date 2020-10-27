@@ -51,18 +51,12 @@ public class NaiveSolver {
         notLooped.removeAll(looped);
 
         Set<Set<Vertex>> result = notLooped.parallelStream().unordered()
-                .map(vertex ->
+                .flatMap(vertex ->
                         computeOneConflictFree(
                                 Collections.singleton(vertex),
-                                initializeBlacklist(looped, graph.successors(vertex), graph.predecessors(vertex)))
+                                initializeBlacklist(looped, graph.successors(vertex), graph.predecessors(vertex))).stream()
                 )
-                .reduce(
-                        new HashSet<>(),
-                        (s1, s2) -> {
-                            s1.addAll(s2);
-                            return s2;
-                        }
-                );
+                .collect(Collectors.toSet());
 
         // empty set is always conflict free
         result.add(new HashSet<>());
