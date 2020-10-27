@@ -4,6 +4,7 @@ import graphical.Graph;
 import graphical.Vertex;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,12 +65,33 @@ public class NaiveSolver {
         for ( int i = 0; i <= graph.getVertices().size(); i++ ) {
             for ( Set<Vertex> previousCf : results.getOrDefault(i, Collections.emptySet()) ) {
                 Set<Set<Vertex>> resultOfCurrentDepth = new HashSet<>();
-                legalOptions(previousCf).forEach(vertex -> {
-                    Set<Vertex> foundCf = new HashSet<>(previousCf);
-                    foundCf.add(vertex);
-                    resultOfCurrentDepth.add(foundCf);
+                System.out.print(previousCf + " with following options: ");
+                for ( Vertex generalVertex : graph.getVertices() ) {
+
+                    boolean isAttacked = false;
+                    boolean isAttacker = false;
+
+                    for ( Vertex possibleAttackerOrAttacked : previousCf ) {
+                        if ( graph.successors(possibleAttackerOrAttacked).contains(generalVertex) ) {
+                            isAttacked = true;
+                        }
+                        if ( graph.predecessors(possibleAttackerOrAttacked).contains(generalVertex) ) {
+                            isAttacker = true;
+                        }
+                    }
+
+                    if ( !previousCf.contains(generalVertex) && !isAttacked && !isAttacker ) {
+                        System.out.print(generalVertex + " ");
+                        Set<Vertex> foundCf = new HashSet<>(previousCf);
+                        foundCf.add(generalVertex);
+                        resultOfCurrentDepth.add(foundCf);
+                    }
+                }
+                System.out.println();
+                results.merge(i + 1, resultOfCurrentDepth, (s1, s2) -> {
+                    s1.addAll(s2);
+                    return s1;
                 });
-                results.put(i + 1, resultOfCurrentDepth);
             }
         }
 
@@ -77,21 +99,17 @@ public class NaiveSolver {
     }
 
     public Stream<Vertex> legalOptions(Set<Vertex> currentCf) {
-        return graph.getVertices().parallelStream().filter(generalVertex ->
-                !(
-                        (
-                                currentCf.contains(generalVertex)
-                        ) || (
-                                currentCf.parallelStream().anyMatch(cfVertex ->
-                                        (
-                                                graph.predecessors(cfVertex).contains(generalVertex)
-                                        ) || (
-                                                graph.successors(cfVertex).contains(generalVertex)
-                                        )
-                                )
-                        )
-                )
-        );
+        return graph.getVertices().stream().filter(predicate2(currentCf));
+    }
+
+    public Predicate<Vertex> predicate2(Set<Vertex> currentCf) {
+        return vertex -> true;
+    }
+
+    public Predicate<Vertex> predicate(Set<Vertex> currentCf) {
+        return generalVertex -> !(currentCf.contains(generalVertex)
+                || currentCf.parallelStream().flatMap(cfVertex -> Stream.concat(graph.predecessors(cfVertex).stream()
+                , graph.successors(cfVertex).stream())).anyMatch(generalVertex::equals));
     }
 
     @Deprecated

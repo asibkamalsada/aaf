@@ -192,4 +192,12 @@ public class Graph implements Serializable {
     public int hashCode() {
         return Objects.hash(vertices, edges);
     }
+
+    @Override
+    public String toString() {
+        return "Graph{" +
+                "vertices=" + vertices +
+                ", edges=" + edges +
+                '}';
+    }
 }

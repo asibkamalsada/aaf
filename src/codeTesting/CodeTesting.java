@@ -1,12 +1,14 @@
 package codeTesting;
 
-import benching.Tester;
 import graphical.Graph;
+import graphical.Vertex;
 import io.GraphParser;
+import io.SolutionParser;
 import solver.NaiveSolver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
 public class CodeTesting {
 
@@ -107,7 +109,61 @@ public class CodeTesting {
 
         Path currentConflictFreeSolution = null;
         long start6 = System.currentTimeMillis();
-        System.out.println(Tester.testConflictFree(naiveSolver.computeConflictFree(), currentInstance, conarg));
+
+        final Set<Set<Vertex>> mySolution = naiveSolver.computeConflictFree();
+
+        final Set<Set<Vertex>> correctSolution = SolutionParser.parseConflictFree(currentInstance, conarg);
+
+        System.out.println("my solution:[");
+        mySolution.forEach(result -> System.out.println("\t" + result));
+        System.out.println("]\n");
+
+        System.out.println("my\\correct:[");
+        mySolution.stream().filter(o -> !correctSolution.contains(o)).forEach(result -> System.out.println("\t" +
+                result));
+        System.out.println("]\n");
+
+
+        System.out.println("correct\\my:[");
+        correctSolution.stream().filter(o -> !mySolution.contains(o)).forEach(result -> System.out.println("\t" +
+                result));
+        System.out.println("]");
+
+        System.out.println(mySolution.equals(correctSolution));
+
+        //System.out.println(Tester.testConflictFree(, currentInstance, conarg));
+
+        //test whether predecessor and successor work:
+        /*{
+            Set<Vertex> vertices = new HashSet<>(normalGraph.getVertices());
+            Set<Edge> edges = new HashSet<>();
+
+            normalGraph.getAllSuccessors().forEach((attacker, attackeds) -> {
+                attackeds.forEach(attacked -> {
+                    edges.add(new Edge(attacker, attacked));
+                });
+            });
+
+            Graph successorGraph = new Graph(vertices, edges);
+
+            System.out.println(normalGraph.equals(successorGraph));
+        }
+
+        {
+            Set<Vertex> vertices = new HashSet<>(normalGraph.getVertices());
+            Set<Edge> edges = new HashSet<>();
+
+            normalGraph.getVertices().forEach(attacked -> {
+                normalGraph.predecessors(attacked).forEach(attacker -> {
+                    edges.add(new Edge(attacker, attacked));
+                });
+            });
+
+            Graph predecessorGraph = new Graph(vertices, edges);
+
+            System.out.println(normalGraph.equals(predecessorGraph));
+        }*/
+
         /*
         for ( Vertex a : normalGraph.getVertices() ) {
             System.out.print(normalGraph.predecessors(a));
