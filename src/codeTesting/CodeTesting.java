@@ -1,6 +1,5 @@
 package codeTesting;
 
-import benching.GroundedBenchmarker;
 import benching.Tester;
 import graphical.Graph;
 import io.GraphParser;
@@ -91,7 +90,7 @@ public class CodeTesting {
         */
 
         NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
-
+        /*
         long start5 = System.currentTimeMillis();
         naiveSolver.computeGrounded();
         System.out.println("grounded naive time: " + (System.currentTimeMillis() - start5));
@@ -101,11 +100,11 @@ public class CodeTesting {
         System.out.println(naiveSolver.computeGrounded());
 
         System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), gb.solutionPath(currentInstance)));
-
+        */
 
         Path currentConflictFreeSolution = null;
         long start6 = System.currentTimeMillis();
-        //Tester.testConflictFree(naiveSolver.computeConflictFree(), currentConflictFreeSolution);
+        Tester.testConflictFree(naiveSolver.computeConflictFree(), normalGraph);
         /*
         for ( Vertex a : normalGraph.getVertices() ) {
             System.out.print(normalGraph.predecessors(a));

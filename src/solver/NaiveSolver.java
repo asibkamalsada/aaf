@@ -43,6 +43,14 @@ public class NaiveSolver {
 //----------------------------------------------------------------------------------------------------------------------
 
 
+    public Set<Set<Vertex>> computeConflictFree() {
+        return iterativerAnsatz().entrySet().parallelStream().<Set<Set<Vertex>>>collect(
+                HashSet::new,
+                (set, entry) -> set.addAll(entry.getValue()),
+                Set::addAll
+        );
+    }
+
     public Map<Integer, Set<Set<Vertex>>> iterativerAnsatz() {
         /*
          * Start: leere Menge
@@ -86,7 +94,8 @@ public class NaiveSolver {
         );
     }
 
-    public Set<Set<Vertex>> computeConflictFree() {
+    @Deprecated
+    public Set<Set<Vertex>> computeConflictFreeDeprecated() {
 
         Set<Vertex> looped = graph.getAllSuccessors().entrySet().parallelStream().unordered()
                 .filter(entry -> entry.getValue().contains(entry.getKey()))

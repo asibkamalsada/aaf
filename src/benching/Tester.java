@@ -1,5 +1,6 @@
 package benching;
 
+import graphical.Graph;
 import graphical.Vertex;
 import io.SolutionParser;
 
@@ -13,10 +14,7 @@ public class Tester {
         return SolutionParser.parseGrounded(groundedSolutionPath).equals(toBeTestedGrounded);
     }
 
-    public static boolean testConflictFree(Set<Set<Vertex>> toBeTestedConflictFree, Path conflictFreeSolutionPath) {
-        /*System.out.println("[");
-        toBeTestedConflictFree.forEach(partialSolution -> System.out.println("\t" + partialSolution));
-        System.out.println("]");*/
+    public static boolean testConflictFree(Set<Set<Vertex>> toBeTestedConflictFree, Graph graph) {
         return true;
     }
 }
