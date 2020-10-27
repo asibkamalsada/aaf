@@ -9,7 +9,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 
-public class CfBenchmarker extends Benchmarker{
+public class CfBenchmarker extends Benchmarker {
 
     public CfBenchmarker(Path root) {
         super(root);

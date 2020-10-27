@@ -73,7 +73,7 @@ public class Graph implements Serializable {
     //----------------------------------------------------------------------------------------------------------------------
 
     public static Graph copy(Graph g) {
-        if (g.allPredecessors == null && g.allSuccessors == null){
+        if ( g.allPredecessors == null && g.allSuccessors == null ) {
             return new Graph(new HashSet<>(g.getVertices()), new HashSet<>(g.getEdges()));
         }
 

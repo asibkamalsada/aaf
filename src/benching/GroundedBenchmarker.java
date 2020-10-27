@@ -1,8 +1,6 @@
 package benching;
 
-import graphical.Graph;
 import graphical.Vertex;
-import io.GraphParser;
 import solver.NaiveSolver;
 
 import java.io.IOException;

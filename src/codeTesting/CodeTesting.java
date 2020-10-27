@@ -20,6 +20,9 @@ public class CodeTesting {
 
         Path solutions = root.resolve("reference-results");
 
+        Path conarg = root.resolve("conarg").resolve("distribution").resolve("conarg.exe");
+
+
         String longTgf = "T-4-grd_8020_3_4.tgf";
         /*
          * build: 2.431s
@@ -104,7 +107,7 @@ public class CodeTesting {
 
         Path currentConflictFreeSolution = null;
         long start6 = System.currentTimeMillis();
-        Tester.testConflictFree(naiveSolver.computeConflictFree(), normalGraph);
+        System.out.println(Tester.testConflictFree(naiveSolver.computeConflictFree(), currentInstance, conarg));
         /*
         for ( Vertex a : normalGraph.getVertices() ) {
             System.out.print(normalGraph.predecessors(a));

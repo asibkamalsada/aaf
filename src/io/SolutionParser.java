@@ -30,4 +30,10 @@ public class SolutionParser {
         return solution;
     }
 
+    private static final String CONARG = "";
+
+    public static Set<Set<Vertex>> parseConflictFree(Path instancePath, Path conargPath) {
+        //Runtime.getRuntime().exec();
+        return null;
+    }
 }

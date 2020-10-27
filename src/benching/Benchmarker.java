@@ -8,7 +8,6 @@ import solver.NaiveSolver;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +18,7 @@ public abstract class Benchmarker {
     public Path instancesPath;
     public Path graphsPath;
     public Path solutionsPath;
+    public Path conargPath;
     public Path root;
 
     public Benchmarker(Path root) {
@@ -27,6 +27,7 @@ public abstract class Benchmarker {
         instancesPath = root.resolve("instances");
         graphsPath = root.resolve("graphs");
         solutionsPath = root.resolve("reference-results");
+        conargPath = root.resolve("conarg").resolve("distribution").resolve("conarg.exe");
     }
 
     public Map<Path, Long> bench() throws IOException {
