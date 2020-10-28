@@ -1,7 +1,6 @@
 package benching;
 
 import graphical.Graph;
-import graphical.Vertex;
 import io.GraphParser;
 import solver.NaiveSolver;
 
@@ -10,8 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,22 +35,27 @@ public abstract class Benchmarker {
 
     public Map<Path, Long> bench() throws IOException {
         try ( Stream<Path> paths = Files.list(instancesPath) ) {
+            String testInstance = "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba " +
+                    "baumann\\iccma19\\instances\\C-1-afinput_exp_acyclic_indvary1_step5_batch_yyy07.apx";
             return paths.parallel()
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith("apx"))
-                    //.sorted(Comparator.comparingLong(path -> path.toFile().length()))
-                    /*.unordered()*/
-                    //.limit(20)
+                    .sequential()
+                    .filter(path -> path.toAbsolutePath().toString().equals(testInstance))
+                    /*sorted(Comparator.comparingLong(path -> path.toFile().length()))
+                    .limit(20)*/
                     .collect(Collectors.toMap(path -> path, path -> {
                         String output = "";
                         long start = System.currentTimeMillis();
                         try {
                             Graph g = GraphParser.readGraph(path);
                             NaiveSolver ns = new NaiveSolver(g);
-                            if ( !isResultCorrect(compute(ns), solutionPath(path)) ) {
+                            System.out.print(path + ";");
+                            if ( !isResultCorrect(ns, path) ) {
                                 output += path + "\nnicht korrekt ermittelt worden." + '\n';
                                 return -1L;
                             }
+                            System.out.println(System.currentTimeMillis() - start);
                             output += ((System.currentTimeMillis() - start) / 1000.) + "s: " + path + '\n';
                         } catch ( Exception e ) {
                             output += e.getMessage() + '\n';
@@ -62,11 +66,7 @@ public abstract class Benchmarker {
         }
     }
 
-    public abstract Set<Set<Vertex>> compute(NaiveSolver ns);
-
-    public abstract Path solutionPath(Path instancePath) throws IOException;
-
-    public abstract boolean isResultCorrect(Set<Set<Vertex>> toBeTested, Path solutionPath) throws IOException;
+    public abstract boolean isResultCorrect(NaiveSolver naiveSolver, Path instancePath) throws IOException;
 
     public void printBench(Map<Path, Long> bench, Path outFile) throws IOException {
         StringBuilder csvContent = bench.entrySet().stream().collect(

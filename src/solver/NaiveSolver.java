@@ -45,14 +45,14 @@ public class NaiveSolver {
 
 
     public Set<Set<Vertex>> computeConflictFree() {
-        return iterativerAnsatz().entrySet().parallelStream().<Set<Set<Vertex>>>collect(
+        return breitensuche().entrySet().parallelStream().<Set<Set<Vertex>>>collect(
                 HashSet::new,
                 (set, entry) -> set.addAll(entry.getValue()),
                 Set::addAll
         );
     }
 
-    public Map<Integer, Set<Set<Vertex>>> iterativerAnsatz() {
+    public Map<Integer, Set<Set<Vertex>>> breitensuche() {
         /*
          * Start: leere Menge
          */
@@ -63,9 +63,44 @@ public class NaiveSolver {
         results.put(0, result0);
 
         for ( int i = 0; i <= graph.getVertices().size(); i++ ) {
-            for ( Set<Vertex> previousCf : results.getOrDefault(i, Collections.emptySet()) ) {
+            Set<Set<Vertex>> previousLayer = results.getOrDefault(i, Collections.emptySet());
+            if ( previousLayer.isEmpty() ) {
+                break;
+            }
+
+            results.put(i + 1, previousLayer.parallelStream()
+                    .map(previousCf ->
+                            graph.getVertices().parallelStream()
+                                    .filter(noAttackNorContained(previousCf))
+                                    .map(filteredVertex -> {
+                                        Set<Vertex> cfSet = new HashSet<>(previousCf);
+                                        cfSet.add(filteredVertex);
+                                        return cfSet;
+                                    })
+                                    .collect(Collectors.toSet()))
+                    .<Set<Set<Vertex>>>collect(
+                            HashSet::new,
+                            Set::addAll,
+                            Set::addAll
+                    )
+            );
+            /* above Stream API translates to:
+            for ( Set<Vertex> previousCf : previousLayer ) {
+                StringBuilder output = new StringBuilder().append(previousCf)
+                        .append(" with following options: ");
+
+                Set<Set<Vertex>> resultOfCurrentDepth = graph.getVertices().parallelStream()
+                        .filter(noAttackNorContained(previousCf))
+                        .<Set<Vertex>>map(
+                                filteredVertex -> {
+                                    Set<Vertex> cfSet = new HashSet<>(previousCf);
+                                    cfSet.add(filteredVertex);
+                                    return cfSet;
+                                }
+                        )
+                        .collect(Collectors.toSet());
+
                 Set<Set<Vertex>> resultOfCurrentDepth = new HashSet<>();
-                System.out.print(previousCf + " with following options: ");
                 for ( Vertex generalVertex : graph.getVertices() ) {
 
                     boolean isAttacked = false;
@@ -81,18 +116,22 @@ public class NaiveSolver {
                     }
 
                     if ( !previousCf.contains(generalVertex) && !isAttacked && !isAttacker ) {
-                        System.out.print(generalVertex + " ");
+                        output.append(generalVertex).append(" ");
                         Set<Vertex> foundCf = new HashSet<>(previousCf);
                         foundCf.add(generalVertex);
                         resultOfCurrentDepth.add(foundCf);
                     }
                 }
-                System.out.println();
+
+                output.append("\n");
+                //System.out.println("innerLoop");
                 results.merge(i + 1, resultOfCurrentDepth, (s1, s2) -> {
                     s1.addAll(s2);
                     return s1;
                 });
+
             }
+            */
         }
 
         return results;
@@ -106,10 +145,34 @@ public class NaiveSolver {
         return vertex -> true;
     }
 
-    public Predicate<Vertex> predicate(Set<Vertex> currentCf) {
-        return generalVertex -> !(currentCf.contains(generalVertex)
-                || currentCf.parallelStream().flatMap(cfVertex -> Stream.concat(graph.predecessors(cfVertex).stream()
-                , graph.successors(cfVertex).stream())).anyMatch(generalVertex::equals));
+    public Predicate<Vertex> noAttackNorContained(Set<Vertex> currentCf) {
+        return generalVertex -> {
+            boolean isContained = currentCf.contains(generalVertex);
+
+            if ( isContained ) {
+                return false;
+            }
+
+            Set<Vertex> isConnected = new HashSet<>();
+            isConnected.addAll(graph.successors(generalVertex));
+            isConnected.addAll(graph.predecessors(generalVertex));
+
+            return Collections.disjoint(currentCf, isConnected);
+
+            /* above Stream API translates to:
+            for ( Vertex possibleAttackerOrAttacked : currentCf ) {
+                if ( graph.successors(possibleAttackerOrAttacked).contains(generalVertex) ) {
+                    // generalVertex.isAttacked == true
+                    return false;
+                }
+                if ( graph.predecessors(possibleAttackerOrAttacked).contains(generalVertex) ) {
+                    // generalVertex.isAttacker == true
+                    return false;
+                }
+            }
+            return true;
+             */
+        };
     }
 
     @Deprecated

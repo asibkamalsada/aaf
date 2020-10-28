@@ -1,15 +1,12 @@
 package benching;
 
-import graphical.Vertex;
 import solver.NaiveSolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,8 +24,10 @@ public class GroundedBenchmarker extends Benchmarker {
         );
         GroundedBenchmarker gb = new GroundedBenchmarker(root);
         try {
-            // takes roughly 18min
+            // 156791ms or ~3 min
+            //long start = System.currentTimeMillis();
             final Map<Path, Long> bench = gb.bench();
+            //System.out.println("grounded benching took:" + (System.currentTimeMillis() - start));
             // takes 5ms
             gb.printBench(bench);
         } catch ( IOException e ) {
@@ -36,13 +35,7 @@ public class GroundedBenchmarker extends Benchmarker {
         }
     }
 
-    @Override
-    public Set<Set<Vertex>> compute(NaiveSolver ns) {
-        return Collections.singleton(ns.computeGrounded());
-    }
-
-    @Override
-    public Path solutionPath(Path instancePath) throws IOException {
+    private Path solutionPath(Path instancePath) throws IOException {
         try ( Stream<Path> paths = Files.list(solutionsPath) ) {
             return paths
                     .filter(path -> path.toString().endsWith(instancePath.getFileName() + "m-SE-GR-D.out"))
@@ -52,8 +45,8 @@ public class GroundedBenchmarker extends Benchmarker {
     }
 
     @Override
-    public boolean isResultCorrect(Set<Set<Vertex>> toBeTested, Path solutionPath) throws IOException {
-        return Tester.testGrounded(toBeTested.stream().findFirst().get(), solutionPath);
+    public boolean isResultCorrect(NaiveSolver naiveSolver, Path instancePath) throws IOException {
+        return Tester.testGrounded(naiveSolver.computeGrounded(), solutionPath(instancePath));
     }
 
 }
