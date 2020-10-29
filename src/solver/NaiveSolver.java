@@ -6,7 +6,6 @@ import graphical.Vertex;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class NaiveSolver {
 
@@ -24,7 +23,6 @@ public class NaiveSolver {
         if ( grounded == null ) {
             Graph copiedGraph = Graph.copy(graph);
             Set<Vertex> accepted;
-
             do {
                 accepted = copiedGraph.getUnattacked();
             } while (
@@ -34,15 +32,16 @@ public class NaiveSolver {
                                     .collect(Collectors.toSet())
                     )
             );
-
             grounded = accepted;
-
         }
         return grounded;
     }
 
 //----------------------------------------------------------------------------------------------------------------------
 
+    public long printConflictFree() {
+        return printFromIterator(new CfIterator(graph));
+    }
 
     public Set<Set<Vertex>> computeConflictFree() {
         return breitensuche().entrySet().parallelStream().<Set<Set<Vertex>>>collect(
@@ -137,14 +136,6 @@ public class NaiveSolver {
         return results;
     }
 
-    public Stream<Vertex> legalOptions(Set<Vertex> currentCf) {
-        return graph.getVertices().stream().filter(predicate2(currentCf));
-    }
-
-    public Predicate<Vertex> predicate2(Set<Vertex> currentCf) {
-        return vertex -> true;
-    }
-
     public Predicate<Vertex> noAttackNorContained(Set<Vertex> currentCf) {
         return generalVertex -> {
             boolean isContained = currentCf.contains(generalVertex);
@@ -175,68 +166,22 @@ public class NaiveSolver {
         };
     }
 
-    @Deprecated
-    public Set<Set<Vertex>> computeConflictFreeDeprecated() {
+//----------------------------------------------------------------------------------------------------------------------
 
-        Set<Vertex> looped = graph.getAllSuccessors().entrySet().parallelStream().unordered()
-                .filter(entry -> entry.getValue().contains(entry.getKey()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toSet());
-        Set<Vertex> notLooped = new HashSet<>(graph.getVertices());
-        notLooped.removeAll(looped);
-
-        Set<Set<Vertex>> result = notLooped.parallelStream().unordered()
-                .flatMap(vertex ->
-                        computeOneConflictFree(
-                                Collections.singleton(vertex),
-                                initializeBlacklist(vertex, looped)
-                        ).stream()
-                )
-                .collect(Collectors.toSet());
-
-        // empty set is always conflict free
-        result.add(new HashSet<>());
-        return result;
+    public long printAdmissible() {
+        return printFromIterator(new AdmIterator(graph));
     }
 
+//----------------------------------------------------------------------------------------------------------------------
 
-    private Set<Set<Vertex>> computeOneConflictFree(Set<Vertex> cf, Set<Vertex> blacklist) {
-        return null;
-    }
-
-    private Set<Set<Vertex>> computeOneConflictFree(Set<Vertex> cf, Map<Vertex, Integer> blacklist) {
-        return null;
-    }
-
-    private Map<Vertex, Integer> initializeBlacklist(Vertex initialVertex, Set<Vertex> looped) {
-        return Stream.of(Collections.singleton(initialVertex), graph.predecessors(initialVertex),
-                graph.successors(initialVertex), looped)
-                .flatMap(Collection::stream)
-                .distinct()
-                .<Map<Vertex, Integer>>collect(
-                        HashMap::new,
-                        this::addToBlacklist,
-                        (map1, map2) -> map2.forEach((key, value) -> addToBlacklist(map1, key, value))
-                );
-    }
-
-    private void addToBlacklist(Map<Vertex, Integer> blacklist, Vertex vertex) {
-        addToBlacklist(blacklist, vertex, 1);
-    }
-
-    private void addToBlacklist(Map<Vertex, Integer> blacklist, Vertex vertex, Integer value) {
-        blacklist.merge(vertex, value, Integer::sum);
-    }
-
-    private void removeFromBlacklist(Map<Vertex, Integer> blacklist, Vertex vertex) {
-        Integer count = blacklist.get(vertex);
-        if ( count != null ) {
-            if ( count > 1 ) {
-                blacklist.put(vertex, count - 1);
-            } else {
-                blacklist.remove(vertex);
-            }
+    public long printFromIterator(CfIterator solver) {
+        Set<Vertex> solution;
+        long solutionCount = 0;
+        while ( (solution = solver.next()) != null ) {
+            System.out.println(solution);
+            solutionCount++;
         }
+        return solutionCount;
     }
 
 }

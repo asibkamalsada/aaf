@@ -9,7 +9,8 @@ public class Vertex implements Serializable, Comparable<Vertex> {
 
     private String label;
 
-    public Vertex(){}
+    public Vertex() {
+    }
 
     public Vertex(String label) {
         this.label = label;

@@ -4,6 +4,7 @@ import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
 import solver.CfIterator;
+import solver.NaiveSolver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,7 +51,7 @@ public class CodeTesting {
 
         String selfMadeApx = "test.apx";
 
-        String currentFileName = longApx;
+        String currentFileName = emptyGrounded;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
@@ -95,7 +96,7 @@ public class CodeTesting {
         copiedGraph.getAllSuccessors().forEach((key, value) -> System.out.println(key + "->" + value));
         */
 
-        //NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
+        NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
         /*
         long start5 = System.currentTimeMillis();
         naiveSolver.computeGrounded();
@@ -186,15 +187,7 @@ public class CodeTesting {
         System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
 */
 
-        CfIterator solver = new CfIterator(normalGraph);
-
-        Set<Vertex> solution;
-        int solutionCount = 0;
-        while ( (solution = solver.next()) != null ) {
-            System.out.println(solution);
-            solutionCount++;
-        }
-        System.out.println(solutionCount);
+        System.out.println(naiveSolver.printAdmissible());
 
     }
 

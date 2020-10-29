@@ -1,24 +1,23 @@
 package solver;
 
 import graphical.Graph;
-import graphical.Vertex;
 import graphical.SearchTree;
+import graphical.Vertex;
 
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class CfIterator implements Iterator<Set<Vertex>> {
+public class CfIterator {
 
-    private final List<Vertex> orderedVertices;
-    private final Graph graph;
-    private final List<Vertex> blacklist;
-    private Stack<Vertex> currentResult;
+    protected final List<Vertex> orderedVertices;
+    protected final Graph graph;
+    protected final List<Vertex> blacklist;
+    protected Stack<Vertex> currentResult;
 
     /**
      * abgelaufene Pfade des vollstaendigen Suchbaumes
      */
-    private final SearchTree donePaths;
+    protected final SearchTree donePaths;
 
     public CfIterator(Graph g) {
         graph = g;
@@ -31,13 +30,6 @@ public class CfIterator implements Iterator<Set<Vertex>> {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean hasNext() {
-        return true;
-        //return !blacklist.get(0).containsAll(orderedVertices); //incomplete, last branch is not executed
-    }
-
-    @Override
     public Set<Vertex> next() {
         if ( currentResult == null ) {
             currentResult = new Stack<>();
@@ -79,12 +71,11 @@ public class CfIterator implements Iterator<Set<Vertex>> {
         return new HashSet<>(currentResult);
     }
 
-    @Override
-    public void forEachRemaining(Consumer action) {
-
+    protected boolean isAllowed(Vertex vertex) {
+        return !blacklist.contains(vertex) && !donePaths.isDone(currentResult, vertex) && additionalRestriction(vertex);
     }
 
-    private boolean isAllowed(Vertex vertex) {
-        return !blacklist.contains(vertex) && !donePaths.isDone(currentResult, vertex);
+    protected boolean additionalRestriction(Vertex vertex) {
+        return true;
     }
 }
