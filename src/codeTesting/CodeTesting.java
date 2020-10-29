@@ -51,7 +51,7 @@ public class CodeTesting {
 
         String selfMadeApx = "test.apx";
 
-        String currentFileName = emptyGrounded;
+        String currentFileName = selfMadeApx;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");

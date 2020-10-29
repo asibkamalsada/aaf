@@ -35,40 +35,47 @@ public class CfIterator {
             currentResult = new Stack<>();
         } else {
 
-            Set<Vertex> allowedMoves;
-
-            while ( (allowedMoves =
-                    orderedVertices.parallelStream().filter(this::isAllowed).collect(Collectors.toSet()))
-                    .isEmpty()
-                    && donePaths.addDonePath(currentResult)
-                    && !currentResult.isEmpty() ) {
-                Vertex lastPoppedVertex = currentResult.pop();
-
-                blacklist.remove(lastPoppedVertex);
-
-                for ( Vertex successor : graph.successors(lastPoppedVertex) ) {
-                    blacklist.remove(successor);
-                }
-                for ( Vertex predecessor : graph.predecessors(lastPoppedVertex) ) {
-                    blacklist.remove(predecessor);
-                }
-            }
-
             // next chosen Vertex must not be blacklisted and not lead to a visited Path
 
-            final Optional<Vertex> nextO = allowedMoves.stream().findAny();
+            final Optional<Vertex> nextO = getAllowedMoves().stream().findAny();
 
             if ( nextO.isPresent() ) {
-                blacklist.add(nextO.get());
-
-                blacklist.addAll(graph.successors(nextO.get()));
-                blacklist.addAll(graph.predecessors(nextO.get()));
-                currentResult.push(nextO.get());
+                move(nextO.get());
             } else {
                 return null;
             }
         }
         return new HashSet<>(currentResult);
+    }
+
+    public void move(Vertex nextO) {
+        blacklist.add(nextO);
+
+        blacklist.addAll(graph.successors(nextO));
+        blacklist.addAll(graph.predecessors(nextO));
+        currentResult.push(nextO);
+    }
+
+    public Set<Vertex> getAllowedMoves() {
+        Set<Vertex> allowedMoves;
+
+        while ( (allowedMoves =
+                orderedVertices.parallelStream().filter(this::isAllowed).collect(Collectors.toSet()))
+                .isEmpty()
+                && donePaths.addDonePath(currentResult)
+                && !currentResult.isEmpty() ) {
+            Vertex lastPoppedVertex = currentResult.pop();
+
+            blacklist.remove(lastPoppedVertex);
+
+            for ( Vertex successor : graph.successors(lastPoppedVertex) ) {
+                blacklist.remove(successor);
+            }
+            for ( Vertex predecessor : graph.predecessors(lastPoppedVertex) ) {
+                blacklist.remove(predecessor);
+            }
+        }
+        return allowedMoves;
     }
 
     protected boolean isAllowed(Vertex vertex) {
