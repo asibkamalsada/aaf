@@ -3,8 +3,7 @@ package codeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
-import io.SolutionParser;
-import solver.NaiveSolver;
+import solver.CfIterator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -49,7 +48,9 @@ public class CodeTesting {
         String longApx = "T-4-grd_8020_3_4.apx";
         String shortApx = "B-1-BA_40_60_2.apx";
 
-        String currentFileName = emptyGrounded;
+        String selfMadeApx = "test.apx";
+
+        String currentFileName = longApx;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
@@ -94,7 +95,7 @@ public class CodeTesting {
         copiedGraph.getAllSuccessors().forEach((key, value) -> System.out.println(key + "->" + value));
         */
 
-        NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
+        //NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
         /*
         long start5 = System.currentTimeMillis();
         naiveSolver.computeGrounded();
@@ -106,7 +107,7 @@ public class CodeTesting {
 
         System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), gb.solutionPath(currentInstance)));
         */
-
+/*
         Path currentConflictFreeSolution = null;
         long start6 = System.currentTimeMillis();
 
@@ -130,7 +131,7 @@ public class CodeTesting {
         System.out.println("]");
 
         System.out.println(mySolution.equals(correctSolution));
-
+*/
         //System.out.println(Tester.testConflictFree(, currentInstance, conarg));
 
         //test whether predecessor and successor work:
@@ -184,6 +185,17 @@ public class CodeTesting {
 
         System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
 */
+
+        CfIterator solver = new CfIterator(normalGraph);
+
+        Set<Vertex> solution;
+        int solutionCount = 0;
+        while ( (solution = solver.next()) != null ) {
+            System.out.println(solution);
+            solutionCount++;
+        }
+        System.out.println(solutionCount);
+
     }
 
 }

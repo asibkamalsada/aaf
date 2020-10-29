@@ -3,7 +3,7 @@ package graphical;
 import java.io.Serializable;
 import java.util.Objects;
 
-public class Vertex implements Serializable {
+public class Vertex implements Serializable, Comparable<Vertex> {
 
     private final static long serialVersionUID = 3667875158165427227L;
 
@@ -31,5 +31,11 @@ public class Vertex implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(label);
+    }
+
+
+    @Override
+    public int compareTo(Vertex o) {
+        return this.label.compareTo(o.label);
     }
 }
