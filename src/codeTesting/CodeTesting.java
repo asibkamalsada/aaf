@@ -1,14 +1,13 @@
 package codeTesting;
 
+import benching.Tester;
 import graphical.Graph;
-import graphical.Vertex;
 import io.GraphParser;
-import solver.CfIterator;
+import solver.AdmIterator;
 import solver.NaiveSolver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
 
 public class CodeTesting {
 
@@ -51,7 +50,7 @@ public class CodeTesting {
 
         String selfMadeApx = "test.apx";
 
-        String currentFileName = selfMadeApx;
+        String currentFileName = emptyGrounded;
 
         Path currentInstance = instances.resolve(currentFileName);
         Path currentGraphFile = graphs.resolve(currentFileName + ".bin");
@@ -187,7 +186,9 @@ public class CodeTesting {
         System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
 */
 
-        System.out.println(naiveSolver.printAdmissible());
+        System.out.println(Tester.testAdmissible(new AdmIterator(normalGraph), currentInstance, conarg));
+
+        //System.out.println(naiveSolver.printPreferred());
 
     }
 

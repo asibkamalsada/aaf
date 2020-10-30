@@ -32,15 +32,31 @@ public class SolutionParser {
     }
 
     public static Set<Set<Vertex>> parseConflictFree(Path instancePath, Path conargPath) {
-        try {
-            String[] commandArray = new String[]{
-                    escapePath(conargPath),
-                    "-e",
-                    "conflictfree",
-                    escapePath(instancePath)
-            };
+        String[] commandArray = new String[]{
+                escapePath(conargPath),
+                "-e",
+                "conflictfree",
+                escapePath(instancePath)
+        };
 
-            ProcessBuilder pb = new ProcessBuilder(commandArray);
+        return getConargSets(commandArray);
+    }
+
+    public static Set<Set<Vertex>> parseAdmissible(Path instancePath, Path conargPath) {
+        String[] commandArray = new String[]{
+                escapePath(conargPath),
+                "-e",
+                "admissible",
+                escapePath(instancePath)
+        };
+
+        return getConargSets(commandArray);
+    }
+
+    public static Set<Set<Vertex>> getConargSets(String[] command) {
+        try {
+
+            ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
