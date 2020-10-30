@@ -1,12 +1,15 @@
 package benching;
 
-import solver.NaiveSolver;
+import graphical.Graph;
+import io.SolutionParser;
+import solver.CfIterator;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+@Deprecated
 public class CfBenchmarker extends Benchmarker {
 
     public CfBenchmarker(Path root) {
@@ -14,8 +17,8 @@ public class CfBenchmarker extends Benchmarker {
     }
 
     @Override
-    public boolean isResultCorrect(NaiveSolver naiveSolver, Path instancePath) {
-        return Tester.testConflictFree(naiveSolver.computeConflictFree(), instancePath, conargPath);
+    public boolean isResultCorrect(Graph g, Path instancePath, Path conargPath) {
+        return Tester.iterativeTest(new CfIterator(g), SolutionParser.parseConflictFree(instancePath, conargPath));
     }
 
     public static void main(String[] args) {

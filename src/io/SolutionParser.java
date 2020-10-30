@@ -64,6 +64,17 @@ public class SolutionParser {
         return getConargSets(commandArray);
     }
 
+    public static Set<Set<Vertex>> parsePreferred(Path instancePath, Path conargPath) {
+        String[] commandArray = new String[]{
+                escapePath(conargPath),
+                "-e",
+                "preferred",
+                escapePath(instancePath)
+        };
+
+        return getConargSets(commandArray);
+    }
+
 
     public static Set<Set<Vertex>> getConargSets(String[] command) {
         try {

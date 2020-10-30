@@ -3,9 +3,8 @@ package codeTesting;
 import benching.Tester;
 import graphical.Graph;
 import io.GraphParser;
-import solver.AdmIterator;
-import solver.CompIterator;
-import solver.NaiveSolver;
+import io.SolutionParser;
+import solver.CfIterator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -95,18 +94,18 @@ public class CodeTesting {
         System.out.println("successors:");
         copiedGraph.getAllSuccessors().forEach((key, value) -> System.out.println(key + "->" + value));
         */
+/*
+        GroundedSolver groundedSolver = new GroundedSolver(normalGraph);
 
-        NaiveSolver naiveSolver = new NaiveSolver(normalGraph);
-        /*
         long start5 = System.currentTimeMillis();
         naiveSolver.computeGrounded();
         System.out.println("grounded naive time: " + (System.currentTimeMillis() - start5));
 
         GroundedBenchmarker gb = new GroundedBenchmarker(root);
 
-        System.out.println(naiveSolver.computeGrounded());
+        System.out.println(groundedSolver.computeGrounded());
 
-        System.out.println(Tester.testGrounded(naiveSolver.computeGrounded(), gb.solutionPath(currentInstance)));
+        System.out.println(Tester.testGrounded(groundedSolver.computeGrounded(), gb.solutionPath(currentInstance)));
         */
 /*
         Path currentConflictFreeSolution = null;
@@ -187,9 +186,12 @@ public class CodeTesting {
         System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
 */
 
-        //System.out.println(Tester.testAdmissible(new AdmIterator(normalGraph), currentInstance, conarg));
-
-        System.out.println(Tester.testComplete(new CompIterator(normalGraph), currentInstance, conarg));
+        System.out.println(
+                Tester.iterativeTest(
+                        new CfIterator(normalGraph),
+                        SolutionParser.parseConflictFree(currentInstance, conarg)
+                )
+        );
 
         //System.out.println(naiveSolver.printPreferred());
 

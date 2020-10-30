@@ -20,7 +20,7 @@ public class Edge implements Serializable {
         this.attacked = new Vertex(attacked);
     }
 
-    public Edge(){
+    public Edge() {
 
     }
 

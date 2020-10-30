@@ -1,6 +1,7 @@
 package benching;
 
-import solver.NaiveSolver;
+import graphical.Graph;
+import solver.GroundedSolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -45,8 +46,8 @@ public class GroundedBenchmarker extends Benchmarker {
     }
 
     @Override
-    public boolean isResultCorrect(NaiveSolver naiveSolver, Path instancePath) throws IOException {
-        return Tester.testGrounded(naiveSolver.computeGrounded(), solutionPath(instancePath));
+    public boolean isResultCorrect(Graph g, Path instancePath, Path conargPath) throws IOException {
+        return Tester.testGrounded(new GroundedSolver(g).computeGrounded(), solutionPath(instancePath));
     }
 
 }

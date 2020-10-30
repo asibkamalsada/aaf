@@ -2,14 +2,12 @@ package benching;
 
 import graphical.Graph;
 import io.GraphParser;
-import solver.NaiveSolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -49,9 +47,8 @@ public abstract class Benchmarker {
                         long start = System.currentTimeMillis();
                         try {
                             Graph g = GraphParser.readGraph(path);
-                            NaiveSolver ns = new NaiveSolver(g);
                             System.out.print(path + ";");
-                            if ( !isResultCorrect(ns, path) ) {
+                            if ( !isResultCorrect(g, path, conargPath) ) {
                                 output += path + "\nnicht korrekt ermittelt worden." + '\n';
                                 return -1L;
                             }
@@ -66,7 +63,7 @@ public abstract class Benchmarker {
         }
     }
 
-    public abstract boolean isResultCorrect(NaiveSolver naiveSolver, Path instancePath) throws IOException;
+    public abstract boolean isResultCorrect(Graph g, Path instancePath, Path conargPath) throws IOException;
 
     public void printBench(Map<Path, Long> bench, Path outFile) throws IOException {
         StringBuilder csvContent = bench.entrySet().stream().collect(
