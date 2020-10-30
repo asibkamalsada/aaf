@@ -29,7 +29,8 @@ public class SearchTree {
         // should return true, if some part of the walking graph is contained in visited
         Set<Vertex> move = new HashSet<>(visited);
         move.add(vertex);
-        return donePaths.parallelStream().anyMatch(move::containsAll);
+        return donePaths.contains(move);
+        //return donePaths.parallelStream().anyMatch(move::containsAll);
     }
 
 }

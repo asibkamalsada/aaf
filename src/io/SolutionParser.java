@@ -1,5 +1,6 @@
 package io;
 
+import benching.Benchmarker;
 import graphical.Vertex;
 
 import java.io.BufferedReader;
@@ -77,8 +78,8 @@ public class SolutionParser {
 
 
     public static Set<Set<Vertex>> getConargSets(String[] command) {
+        long start = System.currentTimeMillis();
         try {
-
             ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);
             Process process = pb.start();
@@ -93,7 +94,7 @@ public class SolutionParser {
                 }
                 process.waitFor();
 
-                return lines.stream()
+                final Set<Set<Vertex>> result = lines.stream()
                         .filter(line -> line.startsWith("\""))
                         .map(line ->
                                 Arrays.stream(line.replace("\"", "").split(" "))
@@ -115,9 +116,12 @@ public class SolutionParser {
                                         )
                         )
                         .collect(Collectors.toSet());
+                if ( Benchmarker.isBenching() ) System.out.print(System.currentTimeMillis() - start + ";");
+                return result;
             }
         } catch ( IOException | InterruptedException e ) {
             e.printStackTrace();
+            if ( Benchmarker.isBenching() ) System.out.print(System.currentTimeMillis() - start + ";");
             return null;
         }
     }

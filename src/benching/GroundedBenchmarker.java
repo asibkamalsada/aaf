@@ -1,20 +1,31 @@
 package benching;
 
 import graphical.Graph;
+import graphical.Vertex;
 import solver.GroundedSolver;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class GroundedBenchmarker extends Benchmarker {
+public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
 
     public GroundedBenchmarker(Path root) {
         super(root);
+    }
+
+    @Override
+    public Set<Vertex> calcResult(Graph g) {
+        return new GroundedSolver(g).computeGrounded();
+    }
+
+    @Override
+    public boolean isResultCorrect(Set<Vertex> result, Path instancePath) throws IOException {
+        return Tester.testGrounded(result, solutionPath(instancePath));
     }
 
     public static void main(String[] args) {
@@ -24,16 +35,7 @@ public class GroundedBenchmarker extends Benchmarker {
                         "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba baumann\\iccma19"
         );
         GroundedBenchmarker gb = new GroundedBenchmarker(root);
-        try {
-            // 156791ms or ~3 min
-            //long start = System.currentTimeMillis();
-            final Map<Path, Long> bench = gb.bench();
-            //System.out.println("grounded benching took:" + (System.currentTimeMillis() - start));
-            // takes 5ms
-            gb.printBench(bench);
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        }
+        gb.benchAndSave();
     }
 
     private Path solutionPath(Path instancePath) throws IOException {
@@ -44,10 +46,4 @@ public class GroundedBenchmarker extends Benchmarker {
                     .get(0);
         }
     }
-
-    @Override
-    public boolean isResultCorrect(Graph g, Path instancePath, Path conargPath) throws IOException {
-        return Tester.testGrounded(new GroundedSolver(g).computeGrounded(), solutionPath(instancePath));
-    }
-
 }

@@ -83,4 +83,13 @@ public abstract class SemanticIterator {
     }
 
     protected abstract boolean additionalRestriction(Vertex vertex);
+
+    public Set<Set<Vertex>> getSolutions() {
+        Set<Set<Vertex>> results = new HashSet<>();
+        Set<Vertex> result;
+        while((result = next()) != null){
+            results.add(result);
+        }
+        return results;
+    }
 }

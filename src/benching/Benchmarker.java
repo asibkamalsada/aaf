@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public abstract class Benchmarker {
+public abstract class Benchmarker<T> {
+
+    private static boolean benching = false;
 
     public Path benchmarksPath;
     public Path instancesPath;
@@ -31,41 +33,74 @@ public abstract class Benchmarker {
         benchmarksPath = root.resolve("benchmarks");
     }
 
-    public Map<Path, Long> bench() throws IOException {
-        try ( Stream<Path> paths = Files.list(instancesPath) ) {
-            String testInstance = "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba " +
-                    "baumann\\iccma19\\instances\\C-1-afinput_exp_acyclic_indvary1_step5_batch_yyy07.apx";
-            return paths.parallel()
-                    .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith("apx"))
-                    .sequential()
-                    .filter(path -> path.toAbsolutePath().toString().equals(testInstance))
-                    /*sorted(Comparator.comparingLong(path -> path.toFile().length()))
-                    .limit(20)*/
-                    .collect(Collectors.toMap(path -> path, path -> {
-                        String output = "";
-                        long start = System.currentTimeMillis();
-                        try {
-                            Graph g = GraphParser.readGraph(path);
-                            System.out.print(path + ";");
-                            if ( !isResultCorrect(g, path, conargPath) ) {
-                                output += path + "\nnicht korrekt ermittelt worden." + '\n';
-                                return -1L;
-                            }
-                            System.out.println(System.currentTimeMillis() - start);
-                            output += ((System.currentTimeMillis() - start) / 1000.) + "s: " + path + '\n';
-                        } catch ( Exception e ) {
-                            output += e.getMessage() + '\n';
-                        }
-                        //System.out.println(output);
-                        return System.currentTimeMillis() - start;
-                    }));
+    public void benchAndSave() {
+        try {
+            // takes ???
+            long start = System.currentTimeMillis();
+            final Map<Path, Long> bench = bench();
+            System.out.println(this.getClass() + " benching took:" + (System.currentTimeMillis() - start));
+            // takes 5ms
+            saveBench(bench);
+        } catch ( IOException e ) {
+            e.printStackTrace();
         }
     }
 
-    public abstract boolean isResultCorrect(Graph g, Path instancePath, Path conargPath) throws IOException;
+    public Map<Path, Long> bench() throws IOException {
+        benching = true;
+        try ( Stream<Path> paths = Files.list(instancesPath) ) {
+            String testInstance = "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba " +
+                    "baumann\\iccma19\\instances\\test.apx";
+            /*
+             * meaning of the Long value:
+             *  <0 means incorrect result and abs(value) is the time spent to calculate it
+             * ==0 means exception thrown
+             *  >0 means correct result
+             */
+            final Map<Path, Long> benchingResults = paths//.parallel()
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith("apx"))
+                    .filter(path -> !path.toAbsolutePath().toString().equals(testInstance))
+                    /*.sorted(Comparator.comparingLong(path -> path.toFile().length()))
+                    .limit(20)*/
+                    .collect(Collectors.toMap(path -> path, path -> {
+                        String output = "";
+                        try {
+                            Graph g = GraphParser.readGraph(path);
+                            long start = System.currentTimeMillis();
+                            T result = calcResult(g);
+                            long duration = System.currentTimeMillis() - start;
+                            //do not allow 0
+                            duration++;
+                            if ( !isResultCorrect(result, path) ) {
+                                duration = -duration;
+                            }
+                            output += path + ";" + duration;
+                            System.out.println(output);
+                            return duration;
+                        } catch ( Exception e ) {
+                            output += e.toString() + '\n';
+                            System.out.println(output);
+                            return 0L;
+                        }
+                    }));
+            benching = false;
+            return benchingResults;
+        } catch ( IOException e ) {
+            benching = false;
+            throw e;
+        }
+    }
 
-    public void printBench(Map<Path, Long> bench, Path outFile) throws IOException {
+    //public abstract Set<Set<Vertex>> iterativeResults(Graph g);
+
+    public abstract T calcResult(Graph g);
+
+    //public abstract boolean isResultCorrect(Graph g, Path instancePath) throws IOException;
+
+    public abstract boolean isResultCorrect(T result, Path instancePath) throws IOException;
+
+    public void saveBench(Map<Path, Long> bench, Path outFile) throws IOException {
         StringBuilder csvContent = bench.entrySet().stream().collect(
                 StringBuilder::new,
                 (currentString, entry) -> currentString.append(entry.getKey()).append(";").append(entry.getValue()).append("\n"),
@@ -75,12 +110,12 @@ public abstract class Benchmarker {
         Files.write(outFile, csvContent.toString().getBytes());
     }
 
-    public void printBench(Map<Path, Long> bench, String filename) throws IOException {
-        printBench(bench, benchmarksPath.resolve(filename));
+    public void saveBench(Map<Path, Long> bench, String filename) throws IOException {
+        saveBench(bench, benchmarksPath.resolve(filename));
     }
 
-    public void printBench(Map<Path, Long> bench) throws IOException {
-        printBench(
+    public void saveBench(Map<Path, Long> bench) throws IOException {
+        saveBench(
                 bench,
                 this.getClass().getName().replace("Benchmarker", "").toLowerCase() +
                         "_" +
@@ -93,8 +128,8 @@ public abstract class Benchmarker {
         return LocalDateTime.now().format(DateTimeFormatter.ofPattern("uuuu-MM-dd_HH-mm-ss"));
     }
 
-    private static final String PREFIX1 = "instances-";
-    private static final String PREFIX2 = "iccma-2019-";
-    private static final String PREFIX3 = "sub2-";
+    public static boolean isBenching() {
+        return benching;
+    }
 
 }
