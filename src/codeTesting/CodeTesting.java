@@ -4,6 +4,7 @@ import benching.Tester;
 import graphical.Graph;
 import io.GraphParser;
 import solver.AdmIterator;
+import solver.CompIterator;
 import solver.NaiveSolver;
 
 import java.nio.file.Path;
@@ -186,7 +187,9 @@ public class CodeTesting {
         System.out.println("computeConflictFree: " + (System.currentTimeMillis() - start6));
 */
 
-        System.out.println(Tester.testAdmissible(new AdmIterator(normalGraph), currentInstance, conarg));
+        //System.out.println(Tester.testAdmissible(new AdmIterator(normalGraph), currentInstance, conarg));
+
+        System.out.println(Tester.testComplete(new CompIterator(normalGraph), currentInstance, conarg));
 
         //System.out.println(naiveSolver.printPreferred());
 

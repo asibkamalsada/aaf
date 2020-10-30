@@ -53,6 +53,18 @@ public class SolutionParser {
         return getConargSets(commandArray);
     }
 
+    public static Set<Set<Vertex>> parseComplete(Path instancePath, Path conargPath) {
+        String[] commandArray = new String[]{
+                escapePath(conargPath),
+                "-e",
+                "complete",
+                escapePath(instancePath)
+        };
+
+        return getConargSets(commandArray);
+    }
+
+
     public static Set<Set<Vertex>> getConargSets(String[] command) {
         try {
 

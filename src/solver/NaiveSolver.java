@@ -168,13 +168,25 @@ public class NaiveSolver {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+    public long printPreferred() {
+        return printFromIterator(new PrfIterator(graph));
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+
     public long printAdmissible() {
         return printFromIterator(new AdmIterator(graph));
     }
 
 //----------------------------------------------------------------------------------------------------------------------
 
-    public long printFromIterator(CfIterator solver) {
+    public long printComplete() {
+        return printFromIterator(new CompIterator(graph));
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+    public long printFromIterator(SemanticIterator solver) {
         Set<Vertex> solution;
         long solutionCount = 0;
         while ( (solution = solver.next()) != null ) {
