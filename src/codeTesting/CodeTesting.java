@@ -13,7 +13,7 @@ public class CodeTesting {
 
     public static void main(String[] args) throws Exception {
 
-        Path root = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba baumann\\iccma19");
+        Path root = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19");
 
         Path instances = root.resolve("instances");
 

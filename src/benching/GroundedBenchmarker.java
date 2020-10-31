@@ -32,7 +32,7 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
         Path root = Paths.get(
                 args.length == 1 ?
                         args[ 0 ] :
-                        "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba baumann\\iccma19"
+                        "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19"
         );
         GroundedBenchmarker gb = new GroundedBenchmarker(root);
         gb.benchAndSave();
