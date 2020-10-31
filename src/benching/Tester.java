@@ -2,7 +2,7 @@ package benching;
 
 import graphical.Vertex;
 import io.SolutionParser;
-import solver.SemanticIterator;
+import solver.iterative.SemanticIterator;
 
 import java.io.IOException;
 import java.nio.file.Path;

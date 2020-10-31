@@ -1,4 +1,4 @@
-package solver;
+package solver.iterative;
 
 import graphical.Graph;
 import graphical.Vertex;

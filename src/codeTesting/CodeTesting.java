@@ -4,8 +4,7 @@ import benching.Tester;
 import graphical.Graph;
 import io.GraphParser;
 import io.SolutionParser;
-import solver.AdmIterator;
-import solver.CfIterator;
+import solver.iterative.AdmIterator;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

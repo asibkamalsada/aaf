@@ -3,7 +3,7 @@ package benching;
 import graphical.Graph;
 import graphical.Vertex;
 import io.SolutionParser;
-import solver.CfIterator;
+import solver.iterative.CfIterator;
 
 import java.io.IOException;
 import java.nio.file.Path;
