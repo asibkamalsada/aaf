@@ -4,6 +4,7 @@ import benching.Tester;
 import graphical.Graph;
 import io.GraphParser;
 import io.SolutionParser;
+import solver.AdmIterator;
 import solver.CfIterator;
 
 import java.nio.file.Path;
@@ -164,7 +165,6 @@ public class CodeTesting {
 
             System.out.println(normalGraph.equals(predecessorGraph));
         }*/
-
         /*
         for ( Vertex a : normalGraph.getVertices() ) {
             System.out.print(normalGraph.predecessors(a));
@@ -188,8 +188,8 @@ public class CodeTesting {
 
         System.out.println(
                 Tester.iterativeTest(
-                        new CfIterator(normalGraph),
-                        SolutionParser.parseConflictFree(currentInstance, conarg)
+                        new AdmIterator(normalGraph),
+                        SolutionParser.parseAdmissible(currentInstance, conarg)
                 )
         );
 

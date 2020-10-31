@@ -11,8 +11,8 @@ public abstract class SemanticIterator {
 
     protected final List<Vertex> orderedVertices;
     protected final Graph graph;
-    protected final List<Vertex> blacklist;
-    protected Stack<Vertex> currentResult;
+    protected final Map<Vertex, Integer> blacklist;
+    protected List<Vertex> currentResult;
 
     /**
      * abgelaufene Pfade des vollstaendigen Suchbaumes
@@ -24,15 +24,21 @@ public abstract class SemanticIterator {
 
         orderedVertices = graph.getVertices().stream().sorted().collect(Collectors.toList());
         donePaths = new SearchTree(graph);
-        blacklist = graph.getAllSuccessors().entrySet().parallelStream()
-                .filter(entry -> entry.getValue().contains(entry.getKey()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
+
+        blacklist = new HashMap<>(graph.getVertices().size() + 1);
+
+        for ( Vertex vertex : graph.getVertices() ) {
+            if ( graph.successors(vertex).contains(vertex) ) {
+                blacklist.put(vertex, 1);
+            } else {
+                blacklist.put(vertex, 0);
+            }
+        }
     }
 
     public Set<Vertex> next() {
         if ( currentResult == null ) {
-            currentResult = new Stack<>();
+            currentResult = new ArrayList<>(graph.getVertices().size());
         } else {
 
             // next chosen Vertex must not be blacklisted and not lead to a visited Path
@@ -49,11 +55,8 @@ public abstract class SemanticIterator {
     }
 
     public void move(Vertex nextO) {
-        blacklist.add(nextO);
-
-        blacklist.addAll(graph.successors(nextO));
-        blacklist.addAll(graph.predecessors(nextO));
-        currentResult.push(nextO);
+        blacklistRelatedVertices(nextO);
+        currentResult.add(nextO);
     }
 
     public Set<Vertex> getAllowedMoves() {
@@ -62,34 +65,60 @@ public abstract class SemanticIterator {
         while ( (allowedMoves =
                 orderedVertices.parallelStream().filter(this::isAllowed).collect(Collectors.toSet()))
                 .isEmpty()
-                && donePaths.addDonePath(currentResult)
+                && donePaths.addDoneBranch(currentResult)
                 && !currentResult.isEmpty() ) {
-            Vertex lastPoppedVertex = currentResult.pop();
+            Vertex lastPoppedVertex = currentResult.remove(currentResult.size() - 1);
 
-            blacklist.remove(lastPoppedVertex);
-
-            for ( Vertex successor : graph.successors(lastPoppedVertex) ) {
-                blacklist.remove(successor);
-            }
-            for ( Vertex predecessor : graph.predecessors(lastPoppedVertex) ) {
-                blacklist.remove(predecessor);
-            }
+            whitelistRelatedVertices(lastPoppedVertex);
         }
         return allowedMoves;
     }
 
     protected boolean isAllowed(Vertex vertex) {
-        return !blacklist.contains(vertex) && !donePaths.isDone(currentResult, vertex) && additionalRestriction(vertex);
+        return (blacklist.get(vertex) == 0) && !donePaths.isDone(currentResult, vertex) && additionalRestriction(vertex);
     }
 
     protected abstract boolean additionalRestriction(Vertex vertex);
 
+    private void blacklistRelatedVertices(Vertex v) {
+        blacklistVertex(v);
+        for ( Vertex succ : graph.successors(v) ) {
+            blacklistVertex(succ);
+        }
+        for ( Vertex pre : graph.predecessors(v) ) {
+            blacklistVertex(pre);
+        }
+    }
+
+    public void whitelistRelatedVertices(Vertex v) {
+        whitelistVertex(v);
+        for ( Vertex succ : graph.successors(v) ) {
+            whitelistVertex(succ);
+        }
+        for ( Vertex pre : graph.predecessors(v) ) {
+            whitelistVertex(pre);
+        }
+    }
+
+    private void blacklistVertex(Vertex v) {
+        blacklist.merge(v, 1, Integer::sum);
+    }
+
+    private void whitelistVertex(Vertex v) {
+        blacklist.merge(v, -1, Integer::sum);
+    }
+
     public Set<Set<Vertex>> getSolutions() {
         Set<Set<Vertex>> results = new HashSet<>();
         Set<Vertex> result;
-        while((result = next()) != null){
+        while ( (result = next()) != null ) {
             results.add(result);
         }
         return results;
     }
+
+    public void printSolutions() {
+        while ( next() != null);
+    }
+
 }

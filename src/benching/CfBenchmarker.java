@@ -19,7 +19,8 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>>  {
 
     @Override
     public Set<Set<Vertex>> calcResult(Graph g) {
-        return new CfIterator(g).getSolutions();
+        new CfIterator(g).printSolutions();
+        return null;
     }
 
     @Override
@@ -34,7 +35,11 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>>  {
                         "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba baumann\\iccma19"
         );
         Benchmarker<Set<Set<Vertex>>> cfb = new CfBenchmarker(root);
-        cfb.benchAndSave();
+        try {
+            cfb.bench(false);
+        } catch ( IOException e ) {
+            e.printStackTrace();
+        }
     }
 
 }

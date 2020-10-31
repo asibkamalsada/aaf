@@ -3,16 +3,16 @@ package solver;
 import graphical.Graph;
 import graphical.Vertex;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 public class PrfIterator extends AdmIterator {
     public PrfIterator(Graph g) {
         super(g);
-        currentResult = new Stack<>();
+        currentResult = new ArrayList<>(g.getVertices().size());
     }
 
     @Override

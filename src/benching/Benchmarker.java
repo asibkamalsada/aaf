@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,7 +38,7 @@ public abstract class Benchmarker<T> {
         try {
             // takes ???
             long start = System.currentTimeMillis();
-            final Map<Path, Long> bench = bench();
+            final Map<Path, Long> bench = bench(true);
             System.out.println(this.getClass() + " benching took:" + (System.currentTimeMillis() - start));
             // takes 5ms
             saveBench(bench);
@@ -46,7 +47,7 @@ public abstract class Benchmarker<T> {
         }
     }
 
-    public Map<Path, Long> bench() throws IOException {
+    public Map<Path, Long> bench(boolean checkResult) throws IOException {
         benching = true;
         try ( Stream<Path> paths = Files.list(instancesPath) ) {
             String testInstance = "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba " +
@@ -72,7 +73,7 @@ public abstract class Benchmarker<T> {
                             long duration = System.currentTimeMillis() - start;
                             //do not allow 0
                             duration++;
-                            if ( !isResultCorrect(result, path) ) {
+                            if ( checkResult && !isResultCorrect(result, path) ) {
                                 duration = -duration;
                             }
                             output += path + ";" + duration;

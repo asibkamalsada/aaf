@@ -4,33 +4,41 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SearchTree {
 
-    Set<Vertex> possibleVertices;
-    List<Set<Vertex>> donePaths;
+    Set<List<Vertex>> doneBranches;
 
     public SearchTree(Graph g) {
-        possibleVertices = g.getVertices();
-        donePaths = new ArrayList<>();
+        doneBranches = new HashSet<>();
     }
 
-    public boolean addDonePath(List<Vertex> visited) {
-        return donePaths.add(new HashSet<>(visited));
-    }
-
-    public void addDonePath(List<Vertex> visited, Vertex lastPopped) {
-        Set<Vertex> temp = new HashSet<>(visited);
-        temp.add(lastPopped);
-        donePaths.add(temp);
+    public boolean addDoneBranch(List<Vertex> visited) {
+        doneBranches = doneBranches.parallelStream()
+                .filter(doneBranch -> {
+                    if ( doneBranch.size() <= visited.size() ) return true;
+                    for ( int i = 0; i < visited.size(); i++ ) {
+                        if ( !doneBranch.get(i).equals(visited.get(i)) ) return true;
+                    }
+                    return false;
+                })
+                .collect(Collectors.toSet());
+        return doneBranches.add(new ArrayList<>(visited));
     }
 
     public boolean isDone(List<Vertex> visited, Vertex vertex) {
-        // should return true, if some part of the walking graph is contained in visited
-        Set<Vertex> move = new HashSet<>(visited);
-        move.add(vertex);
-        return donePaths.contains(move);
-        //return donePaths.parallelStream().anyMatch(move::containsAll);
+        return doneBranches.parallelStream()
+                .anyMatch(doneBranch -> {
+                    // wenn der bereits abgeschlossene Pfad laenger ist, als der zu ueberpruefende, kann der zu
+                    // ueberpruefende gar nicht von diesem Pfad abgedeckt sein.
+                    if ( doneBranch.size() > visited.size() + 1 ) return false;
+                    for ( int i = 0; i < doneBranch.size() - 1; i++ ) {
+                        // wenn sie bis zur vorletzten Stelle uebereinstimmen koennte es ein Treffer sein
+                        if ( !doneBranch.get(i).equals(visited.get(i)) ) return false;
+                    }
+                    return doneBranch.get(doneBranch.size() - 1).equals(vertex);
+                });
     }
 
 }
