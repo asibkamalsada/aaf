@@ -120,6 +120,7 @@ public class Graph implements Serializable {
                 .collect(Collectors.toSet());
     }
 
+    // TODO this is executed twice, second time just for the size
     public Set<Vertex> getFreeVertices() {
         return vertices.parallelStream()
                 .filter(vertex -> predecessors(vertex).isEmpty() && successors(vertex).isEmpty())
@@ -130,14 +131,22 @@ public class Graph implements Serializable {
 
     public String getCfDimacs() {
         if ( cfDimacs != null ) return cfDimacs;
-        String header = "p cnf " + vertices.size() + " " + edges.size() + "\n";
+        String header = "p cnf " + vertices.size() + " " + getFreeVertices().size() + edges.size() + "\n";
 
         return (cfDimacs = header + getCfDimacsBody());
     }
 
     public String getCfDimacsBody() {
         if ( cfDimacsBody != null ) return cfDimacsBody;
-        return cfDimacsBody = " " + edges.parallelStream().unordered()
+
+        String freeVertices = getFreeVertices().parallelStream().unordered()
+                .map(vertex -> {
+                    int index = vertexToIndex.get(vertex);
+                    return index + " " + -index + " 0";
+                })
+                .collect(Collectors.joining(" "));
+
+        return cfDimacsBody = " " + freeVertices + " " + edges.parallelStream().unordered()
                 .collect(StringBuilder::new,
                         (dimacs, edge) -> dimacs
                                 .append(-vertexToIndex.get(edge.getAttacker()))
@@ -151,7 +160,7 @@ public class Graph implements Serializable {
     public String getAdmDimacs() {
         if ( admDimacs != null ) return admDimacs;
 
-        int clauseCount = edges.size();
+        int clauseCount = edges.size() + getFreeVertices().size();
 
         int predecessorsCount = getAllPredecessors().entrySet().parallelStream()
                 .mapToInt(entry -> entry.getValue().size())
