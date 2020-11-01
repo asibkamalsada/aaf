@@ -3,15 +3,14 @@ package benching;
 import graphical.Graph;
 import graphical.Vertex;
 import io.SolutionParser;
-import solver.iterative.CfIterator;
+import solver.iterative.CfSat;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
-@Deprecated
-public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>>  {
+public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>> {
 
     public CfBenchmarker(Path root) {
         super(root);
@@ -19,12 +18,11 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>>  {
 
     @Override
     public Set<Set<Vertex>> calcResult(Graph g) {
-        new CfIterator(g).printSolutions();
-        return null;
+        return new CfSat(g).getSolutions();
     }
 
     @Override
-    public boolean isResultCorrect(Set<Set<Vertex>> result, Path instancePath) throws IOException {
+    public boolean isResultCorrect(Set<Set<Vertex>> result, Path instancePath) {
         return SolutionParser.parseConflictFree(instancePath, conargPath).equals(result);
     }
 
@@ -35,11 +33,7 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>>  {
                         "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19"
         );
         Benchmarker<Set<Set<Vertex>>> cfb = new CfBenchmarker(root);
-        try {
-            cfb.bench(false);
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        }
+        cfb.benchAndSave();
     }
 
 }

@@ -1,5 +1,6 @@
 package benching;
 
+import codeTesting.CodeTesting;
 import graphical.Graph;
 import io.GraphParser;
 
@@ -50,8 +51,7 @@ public abstract class Benchmarker<T> {
     public Map<Path, Long> bench(boolean checkResult) throws IOException {
         benching = true;
         try ( Stream<Path> paths = Files.list(instancesPath) ) {
-            String testInstance = "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba " +
-                    "baumann\\iccma19\\instances\\test.apx";
+            String testInstance = instancesPath.resolve(CodeTesting.selfMadeApx).toString();
             /*
              * meaning of the Long value:
              *  <0 means incorrect result and abs(value) is the time spent to calculate it
@@ -62,8 +62,8 @@ public abstract class Benchmarker<T> {
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith("apx"))
                     .filter(path -> !path.toAbsolutePath().toString().equals(testInstance))
-                    /*.sorted(Comparator.comparingLong(path -> path.toFile().length()))
-                    .limit(20)*/
+                    .sorted(Comparator.comparingLong(path -> path.toFile().length()))
+                    .limit(20)
                     .collect(Collectors.toMap(path -> path, path -> {
                         String output = "";
                         try {
@@ -130,7 +130,7 @@ public abstract class Benchmarker<T> {
     }
 
     public static boolean isBenching() {
-        return benching;
+        return false;
     }
 
 }

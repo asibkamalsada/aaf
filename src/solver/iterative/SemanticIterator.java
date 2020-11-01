@@ -112,13 +112,17 @@ public abstract class SemanticIterator {
         Set<Set<Vertex>> results = new HashSet<>();
         Set<Vertex> result;
         while ( (result = next()) != null ) {
+            System.out.println(result);
             results.add(result);
         }
         return results;
     }
 
     public void printSolutions() {
-        while ( next() != null);
+        Set<Vertex> solution;
+        while ( (solution = next()) != null ) {
+            System.out.println(solution);
+        }
     }
 
 }

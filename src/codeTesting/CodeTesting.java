@@ -11,44 +11,45 @@ import java.nio.file.Paths;
 
 public class CodeTesting {
 
+    public static Path root = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19");
+
+    public static Path instances = root.resolve("instances");
+
+    public static Path graphs = root.resolve("graphs");
+
+    public static Path solutions = root.resolve("reference-results");
+
+    public static Path conarg = root.resolve("conarg").resolve("distribution").resolve("conarg.exe");
+
+    public static Path customSolutions = root.resolve("custom-solutions");
+
+    public static String longTgf = "T-4-grd_8020_3_4.tgf";
+    /*
+     * build: 2.431s
+     * 1. run successors: 127.624s
+     * 1. run predecessors: 142.606s
+     *
+     * calcPreSucc: 0.728s
+     *
+     * serializable without pre/succ:
+     * writing: 18.387s
+     * reading: 44.465s
+     *
+     * kryo without pre/succ:
+     * writing: 0.270s
+     * reading: 1.802s
+     *
+     * naive grounded: 2.743s
+     *
+     */
+    public static String emptyGrounded = "Small-result-b83.apx";
+
+    public static String longApx = "T-4-grd_8020_3_4.apx";
+    public static String shortApx = "B-1-BA_40_60_2.apx";
+
+    public static String selfMadeApx = "test.apx";
+
     public static void main(String[] args) throws Exception {
-
-        Path root = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19");
-
-        Path instances = root.resolve("instances");
-
-        Path graphs = root.resolve("graphs");
-
-        Path solutions = root.resolve("reference-results");
-
-        Path conarg = root.resolve("conarg").resolve("distribution").resolve("conarg.exe");
-
-
-        String longTgf = "T-4-grd_8020_3_4.tgf";
-        /*
-         * build: 2.431s
-         * 1. run successors: 127.624s
-         * 1. run predecessors: 142.606s
-         *
-         * calcPreSucc: 0.728s
-         *
-         * serializable without pre/succ:
-         * writing: 18.387s
-         * reading: 44.465s
-         *
-         * kryo without pre/succ:
-         * writing: 0.270s
-         * reading: 1.802s
-         *
-         * naive grounded: 2.743s
-         *
-         */
-        String emptyGrounded = "Small-result-b83.apx";
-
-        String longApx = "T-4-grd_8020_3_4.apx";
-        String shortApx = "B-1-BA_40_60_2.apx";
-
-        String selfMadeApx = "test.apx";
 
         String currentFileName = emptyGrounded;
 

@@ -11,12 +11,11 @@ import java.util.Set;
 public class Tester {
 
     public static boolean testGrounded(Set<Vertex> toBeTestedGrounded, Path groundedSolutionPath) throws IOException {
-        return SolutionParser.parseGrounded(groundedSolutionPath).equals(toBeTestedGrounded);
+        return toBeTestedGrounded.equals(SolutionParser.parseGrounded(groundedSolutionPath));
     }
 
-    @Deprecated
     public static boolean testConflictFree(Set<Set<Vertex>> results, Path instancePath, Path conargPath) {
-        return SolutionParser.parseConflictFree(instancePath, conargPath).equals(results);
+        return results.equals(SolutionParser.parseConflictFree(instancePath, conargPath));
     }
 
     public static boolean iterativeTest(SemanticIterator solver, Set<Set<Vertex>> correctResult) {

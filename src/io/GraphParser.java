@@ -10,6 +10,7 @@ import graphical.Vertex;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -42,7 +43,7 @@ public class GraphParser {
         return readGraph(instancesPath.resolve(filename));
     }
 
-    public static Graph readGraph(Path absolutePath) throws Exception {
+    public static Graph readGraph(Path absolutePath) throws IOException {
         String fileExtension = absolutePath.toString().substring(absolutePath.toString().lastIndexOf('.') + 1);
         Pattern vertexPattern;
         Pattern edgePattern;
@@ -56,7 +57,7 @@ public class GraphParser {
                 edgePattern = tgfEdge;
                 break;
             default:
-                throw new Exception("File was not readable (maybe incorrect file extension)");
+                throw new FileNotFoundException("File was not readable (maybe incorrect file extension)");
         }
 
         Graph result = Files.lines(absolutePath).collect(

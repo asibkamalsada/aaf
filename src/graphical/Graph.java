@@ -177,6 +177,12 @@ public class Graph implements Serializable {
                 .collect(Collectors.toSet());
     }
 
+    public Set<Vertex> getFreeVertices() {
+        return vertices.parallelStream()
+                .filter(vertex -> predecessors(vertex).isEmpty() && successors(vertex).isEmpty())
+                .collect(Collectors.toSet());
+    }
+
 //----------------------------------------------------------------------------------------------------------------------
 
     @Override

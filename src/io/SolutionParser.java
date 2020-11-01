@@ -126,7 +126,7 @@ public class SolutionParser {
         }
     }
 
-    private static String escapePath(Path conargPath) {
-        return ("\"" + conargPath.toAbsolutePath().toString() + "\"").replace("\\", "\\\\");
+    private static String escapePath(Path path) {
+        return ("\"" + path.toAbsolutePath().toString() + "\"").replace("\\", "\\\\");
     }
 }
