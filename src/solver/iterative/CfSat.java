@@ -2,7 +2,7 @@ package solver.iterative;
 
 import graphical.Graph;
 import graphical.Vertex;
-import solver.sat.Cadical;
+import solver.Cadical;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

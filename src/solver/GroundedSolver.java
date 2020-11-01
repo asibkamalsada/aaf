@@ -20,7 +20,7 @@ public class GroundedSolver {
 
     public Set<Vertex> computeGrounded() {
         if ( grounded == null ) {
-            Graph copiedGraph = Graph.copy(graph);
+            Graph.TemporaryGraph copiedGraph = Graph.temporaryCopy(graph);
             Set<Vertex> accepted;
             do {
                 accepted = copiedGraph.getUnattacked();

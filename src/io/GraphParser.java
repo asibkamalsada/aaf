@@ -13,6 +13,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.regex.Matcher;
@@ -25,6 +26,7 @@ public class GraphParser {
     static {
         kryo.register(HashSet.class);
         kryo.register(HashMap.class);
+        kryo.register(ArrayList.class);
 
         kryo.register(Graph.class);
         kryo.register(Vertex.class);
@@ -71,8 +73,9 @@ public class GraphParser {
                         graph.addEdge(edgeMatcher.group(1), edgeMatcher.group(2));
                     }
                 },
-                Graph::addGraph
+                Graph::mergeVerticesAndEdges
         );
+        result.calcIndices();
         result.calcPreSucc();
         return result;
     }

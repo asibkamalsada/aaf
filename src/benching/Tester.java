@@ -18,6 +18,10 @@ public class Tester {
         return results.equals(SolutionParser.parseConflictFree(instancePath, conargPath));
     }
 
+    public static boolean testAdmissible(Set<Set<Vertex>> results, Path instancePath, Path conargPath) {
+        return results.equals(SolutionParser.parseAdmissible(instancePath, conargPath));
+    }
+
     public static boolean iterativeTest(SemanticIterator solver, Set<Set<Vertex>> correctResult) {
         Set<Vertex> oneSolution;
         long counter = 0;
@@ -30,4 +34,5 @@ public class Tester {
         }
         return counter == correctResult.size();
     }
+
 }

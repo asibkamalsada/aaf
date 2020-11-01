@@ -1,4 +1,4 @@
-package solver.sat;
+package solver;
 
 import benching.Benchmarker;
 
