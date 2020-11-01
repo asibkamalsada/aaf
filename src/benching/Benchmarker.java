@@ -130,7 +130,7 @@ public abstract class Benchmarker<T> {
     }
 
     public static boolean isBenching() {
-        return false;
+        return benching;
     }
 
 }

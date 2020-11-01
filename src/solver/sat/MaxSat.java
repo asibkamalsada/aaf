@@ -29,7 +29,7 @@ public abstract class MaxSat {
      **/
     private final int TIMEOUT = 600;
 
-    public MaxSat(Graph graph){
+    public MaxSat(Graph graph) {
         this.graph = graph;
     }
 
@@ -51,14 +51,13 @@ public abstract class MaxSat {
             IProblem problem = reader.parseInstance(is);
             while ( problem.isSatisfiable() ) {
                 unsat = false;
-                solutions.add(graph.interpretSolution(problem.model()));
-                //System.out.println(interpretSolution(model));
                 // do something with each model
-                //System.out.println(Arrays.toString(model));
+                solutions.add(graph.interpretSolution(problem.model()));
+                //System.out.println(graph.interpretSolution(problem.model()));
             }
             if ( unsat ) {
-                System.out.println("no solutions found");
                 // do something for unsat case
+                System.out.println("no solutions found");
             }
         } catch ( FileNotFoundException e ) {
             e.printStackTrace();
@@ -71,7 +70,7 @@ public abstract class MaxSat {
         } catch ( TimeoutException e ) {
             System.out.println("Timeout, sorry!");
         } finally {
-            System.out.println(System.currentTimeMillis() - start);
+            //System.out.println(System.currentTimeMillis() - start);
         }
         return solutions;
     }

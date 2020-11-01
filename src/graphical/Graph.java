@@ -11,6 +11,8 @@ public class Graph implements Serializable {
     private final static long serialVersionUID = -3393718104825315346L;
 
     private String cfDimacs = null;
+    private String admDimacs = null;
+    private String cfDimacsBody = null;
 
     protected final Set<Vertex> vertices;
     protected final Set<Edge> edges;
@@ -130,21 +132,58 @@ public class Graph implements Serializable {
         if ( cfDimacs != null ) return cfDimacs;
         String header = "p cnf " + vertices.size() + " " + edges.size() + "\n";
 
-        String body = edges.stream()
+        return (cfDimacs = header + getCfDimacsBody());
+    }
+
+    public String getCfDimacsBody() {
+        if ( cfDimacsBody != null ) return cfDimacsBody;
+        return cfDimacsBody = " " + edges.parallelStream().unordered()
                 .collect(StringBuilder::new,
-                        (sb, edge) -> sb
+                        (dimacs, edge) -> dimacs
                                 .append(-vertexToIndex.get(edge.getAttacker()))
                                 .append(" ")
                                 .append(-vertexToIndex.get(edge.getAttacked()))
                                 .append(" 0 "),
                         StringBuilder::append)
                 .toString();
-
-        return (cfDimacs = header + body);
     }
 
     public String getAdmDimacs() {
-        return null;
+        if ( admDimacs != null ) return admDimacs;
+
+        int clauseCount = edges.size();
+
+        int predecessorsCount = getAllPredecessors().entrySet().parallelStream()
+                .mapToInt(entry -> entry.getValue().size())
+                .sum();
+
+        String header = "p cnf " + vertices.size() + " " + (clauseCount + predecessorsCount) + "\n";
+
+        String admDimacsBody = " " +
+                vertices.parallelStream().unordered()
+                        .collect(StringBuilder::new,
+                                (dimacs, vertex) -> dimacs.append(defenders(vertex)),
+                                StringBuilder::append).toString();
+
+        return (admDimacs = header + getCfDimacsBody() + admDimacsBody);
+    }
+
+    private String defenders(Vertex vertex) {
+        return predecessors(vertex).parallelStream()
+                .collect(StringBuilder::new,
+                        (clauses, attacker) -> clauses.append(attackers(vertex, attacker)),
+                        StringBuilder::append)
+                .toString();
+    }
+
+    private String attackers(Vertex vertex, Vertex attacker) {
+        return -vertexToIndex.get(vertex) + " " + attackersOf(attacker) + " 0 ";
+    }
+
+    private String attackersOf(Vertex vertex) {
+        return predecessors(vertex).parallelStream().unordered()
+                .map(attacker -> vertexToIndex.get(attacker).toString())
+                .collect(Collectors.joining(" "));
     }
 
     public Set<Set<Vertex>> interpretSolutions(Set<int[]> models) {
