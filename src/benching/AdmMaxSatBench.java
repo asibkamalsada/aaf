@@ -1,5 +1,6 @@
 package benching;
 
+import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import solver.sat.AdmMaxSat;
@@ -25,12 +26,7 @@ public class AdmMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     public static void main(String[] args) {
-        Path root = Paths.get(
-                args.length == 1 ?
-                        args[ 0 ] :
-                        "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19"
-        );
-        Benchmarker<Set<Set<Vertex>>> admb = new AdmMaxSatBench(root);
+        Benchmarker<Set<Set<Vertex>>> admb = new AdmMaxSatBench(CodeTesting.root);
         admb.benchAndSave();
     }
 

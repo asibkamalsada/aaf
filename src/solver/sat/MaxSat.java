@@ -27,7 +27,7 @@ public abstract class MaxSat {
     /**
      * in seconds
      **/
-    private final int TIMEOUT = 600;
+    private final int TIMEOUT = 45;
 
     public MaxSat(Graph graph) {
         this.graph = graph;
@@ -69,6 +69,7 @@ public abstract class MaxSat {
             System.out.println("Unsatisfiable (trivial)!");
         } catch ( TimeoutException e ) {
             System.out.println("Timeout, sorry!");
+            return null;
         } finally {
             //System.out.println(System.currentTimeMillis() - start);
         }

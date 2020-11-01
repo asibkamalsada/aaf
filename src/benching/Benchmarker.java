@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,8 +61,8 @@ public abstract class Benchmarker<T> {
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith("apx"))
                     .filter(path -> !path.toAbsolutePath().toString().equals(testInstance))
-                    .sorted(Comparator.comparingLong(path -> path.toFile().length()))
-                    .limit(20)
+                    //.sorted(Comparator.comparingLong(path -> path.toFile().length()))
+                    //.limit(20)
                     .collect(Collectors.toMap(path -> path, path -> {
                         String output = "";
                         try {
@@ -73,7 +72,8 @@ public abstract class Benchmarker<T> {
                             long duration = System.currentTimeMillis() - start;
                             //do not allow 0
                             duration++;
-                            if ( checkResult && !isResultCorrect(result, path) ) {
+                            if ( result == null ) duration = -duration;
+                            else if ( checkResult && !isResultCorrect(result, path) ) {
                                 duration = -duration;
                             }
                             output += path + ";" + duration;
