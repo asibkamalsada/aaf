@@ -90,6 +90,7 @@ public class SolutionParser {
                     String line;
                     while ( (line = reader.readLine()) != null ) {
                         lines.add(line);
+                        //System.err.println(line);
                     }
                 }
                 process.waitFor();
@@ -116,12 +117,12 @@ public class SolutionParser {
                                         )
                         )
                         .collect(Collectors.toSet());
-                if ( Benchmarker.isBenching() ) System.out.print(System.currentTimeMillis() - start + ";");
+                if ( Benchmarker.isBenching() ) System.out.print(System.currentTimeMillis() - start);
                 return result;
             }
         } catch ( IOException | InterruptedException e ) {
             e.printStackTrace();
-            if ( Benchmarker.isBenching() ) System.out.print(System.currentTimeMillis() - start + ";");
+            if ( Benchmarker.isBenching() ) System.out.print(System.currentTimeMillis() - start);
             return null;
         }
     }

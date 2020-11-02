@@ -1,15 +1,13 @@
 package solver.sat;
 
-import benching.Tester;
 import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
+import org.sat4j.specs.ContradictionException;
 
 import java.io.IOException;
 import java.util.Set;
-
-import static io.CustomSolutionParser.writeSolutions;
 
 public class AdmMaxSat extends MaxSat {
 
@@ -40,7 +38,13 @@ public class AdmMaxSat extends MaxSat {
 
     public AdmMaxSat(Graph graph) {
         super(graph);
-        dimacsString = graph.getAdmDimacs();
+        //dimacsString = graph.getAdmDimacs();
+    }
+
+    @Override
+    protected void prepareSolver() throws ContradictionException {
+        graph.prepareAdm(solver);
+        problem = solver;
     }
 
 }

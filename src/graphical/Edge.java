@@ -24,11 +24,11 @@ public class Edge implements Serializable {
 
     }
 
-    public Vertex getAttacker() {
+    public Vertex attacker() {
         return attacker;
     }
 
-    public Vertex getAttacked() {
+    public Vertex attacked() {
         return attacked;
     }
 

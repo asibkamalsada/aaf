@@ -34,14 +34,18 @@ public abstract class Benchmarker<T> {
         benchmarksPath = root.resolve("benchmarks");
     }
 
-    public void benchAndSave() {
+    public void benchAndSave(boolean checkResult) {
+        benchAndSave(checkResult, "");
+    }
+
+    public void benchAndSave(boolean checkResult, String fileIdentifier) {
         try {
             // takes ???
             long start = System.currentTimeMillis();
-            final Map<Path, Long> bench = bench(true);
+            final Map<Path, Long> bench = bench(checkResult);
             System.out.println(this.getClass() + " benching took:" + (System.currentTimeMillis() - start));
             // takes 5ms
-            saveBench(bench);
+            saveBench(bench, fileIdentifier);
         } catch ( IOException e ) {
             e.printStackTrace();
         }
@@ -112,17 +116,18 @@ public abstract class Benchmarker<T> {
     }
 
     public void saveBench(Map<Path, Long> bench, String filename) throws IOException {
-        saveBench(bench, benchmarksPath.resolve(filename));
+        saveBench(bench, benchmarksPath.resolve(
+                this.getClass().getName().replace("benching.", "").toLowerCase()
+                        + "_"
+                        + filename
+                        + "_"
+                        + currentDateAndTime()
+                        + ".csv"
+        ));
     }
 
     public void saveBench(Map<Path, Long> bench) throws IOException {
-        saveBench(
-                bench,
-                this.getClass().getName().replace("Benchmarker", "").toLowerCase() +
-                        "_" +
-                        currentDateAndTime() +
-                        ".csv"
-        );
+        saveBench(bench, "");
     }
 
     public static String currentDateAndTime() {

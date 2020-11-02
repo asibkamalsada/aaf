@@ -1,5 +1,6 @@
 package benching;
 
+import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import solver.GroundedSolver;
@@ -7,7 +8,6 @@ import solver.GroundedSolver;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,13 +29,8 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
     }
 
     public static void main(String[] args) {
-        Path root = Paths.get(
-                args.length == 1 ?
-                        args[ 0 ] :
-                        "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19"
-        );
-        GroundedBenchmarker gb = new GroundedBenchmarker(root);
-        gb.benchAndSave();
+        GroundedBenchmarker gb = new GroundedBenchmarker(CodeTesting.root);
+        gb.benchAndSave(false);
     }
 
     private Path solutionPath(Path instancePath) throws IOException {

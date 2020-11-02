@@ -33,9 +33,9 @@ public class CfSat extends SemanticIterator {
                 .collect(
                         StringBuilder::new,
                         (sb, edge) -> sb
-                                .append(-index.get(edge.getAttacker()))
+                                .append(-index.get(edge.attacker()))
                                 .append(" ")
-                                .append(-index.get(edge.getAttacked()))
+                                .append(-index.get(edge.attacked()))
                                 .append(" 0 "),
                         StringBuilder::append
                 ).toString();

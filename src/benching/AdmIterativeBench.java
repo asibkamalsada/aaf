@@ -1,5 +1,6 @@
 package benching;
 
+import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import io.SolutionParser;
@@ -7,7 +8,6 @@ import solver.iterative.AdmIterator;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 
 public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
@@ -26,13 +26,8 @@ public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     public static void main(String[] args) {
-        Path root = Paths.get(
-                args.length == 1 ?
-                        args[ 0 ] :
-                        "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19"
-        );
-        Benchmarker<Set<Set<Vertex>>> admb = new AdmIterativeBench(root);
-        admb.benchAndSave();
+        Benchmarker<Set<Set<Vertex>>> admb = new AdmIterativeBench(CodeTesting.root);
+        admb.benchAndSave(false);
     }
 
 

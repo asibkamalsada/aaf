@@ -33,7 +33,7 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>> {
                         "C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19"
         );
         Benchmarker<Set<Set<Vertex>>> cfb = new CfBenchmarker(root);
-        cfb.benchAndSave();
+        cfb.benchAndSave(false);
     }
 
 }

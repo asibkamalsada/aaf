@@ -1,5 +1,10 @@
 package graphical;
 
+import org.sat4j.core.VecInt;
+import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.ISolver;
+import org.sat4j.specs.IVecInt;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.Function;
@@ -81,19 +86,19 @@ public class Graph implements Serializable {
                     () -> new ArrayList<>(Arrays.asList(new HashMap<>(), new HashMap<>())),
                     (maps, edge) -> {
                         HashMap<Vertex, Set<Vertex>> tempSuccessors = maps.get(0);
-                        if ( tempSuccessors.containsKey(edge.getAttacker()) ) {
-                            tempSuccessors.get(edge.getAttacker()).add(edge.getAttacked());
+                        if ( tempSuccessors.containsKey(edge.attacker()) ) {
+                            tempSuccessors.get(edge.attacker()).add(edge.attacked());
                         } else {
-                            tempSuccessors.put(edge.getAttacker(),
-                                    new HashSet<>(Collections.singleton(edge.getAttacked())));
+                            tempSuccessors.put(edge.attacker(),
+                                    new HashSet<>(Collections.singleton(edge.attacked())));
                         }
 
                         HashMap<Vertex, Set<Vertex>> tempPredecessors = maps.get(1);
-                        if ( tempPredecessors.containsKey(edge.getAttacked()) ) {
-                            tempPredecessors.get(edge.getAttacked()).add(edge.getAttacker());
+                        if ( tempPredecessors.containsKey(edge.attacked()) ) {
+                            tempPredecessors.get(edge.attacked()).add(edge.attacker());
                         } else {
-                            tempPredecessors.put(edge.getAttacked(),
-                                    new HashSet<>(Collections.singleton(edge.getAttacker())));
+                            tempPredecessors.put(edge.attacked(),
+                                    new HashSet<>(Collections.singleton(edge.attacker())));
                         }
                     },
                     (maps1, maps2) -> {
@@ -129,6 +134,66 @@ public class Graph implements Serializable {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+    public int prepareCf(ISolver solver) throws ContradictionException {
+        solver.newVar(vertices.size());
+        int nClauses = getFreeVertices().size() + edges.size();
+        solver.setExpectedNumberOfClauses(nClauses);
+
+        addCfClauses(solver);
+
+        return nClauses;
+    }
+
+    private void addCfClauses(ISolver solver) throws ContradictionException {
+/*
+        Vec<IVecInt> atomarClauses = getFreeVertices().stream()//.parallel().unordered()
+                .map(vertex -> new VecInt(new int[]{ vertexToIndex.get(vertex), -vertexToIndex.get(vertex) }))
+                .collect(Vec::new, Vec::push, Vec::moveTo);
+
+        Vec<IVecInt> cfClauses = edges.stream()//.parallel().unordered()
+                .map(edge -> new VecInt(new int[]{
+                        -vertexToIndex.get(edge.attacker()),
+                        -vertexToIndex.get(edge.attacked())
+                }))
+                .collect(Vec::new, Vec::push, Vec::moveTo);
+
+        atomarClauses.moveTo(cfClauses);
+
+        solver.addAllClauses(cfClauses);
+*/
+        for ( Vertex vertex : getFreeVertices() ) {
+            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex), -vertexToIndex.get(vertex) }));
+        }
+
+        for ( Edge edge : edges ) {
+            solver.addClause(new VecInt(new int[]{
+                    -vertexToIndex.get(edge.attacker()),
+                    -vertexToIndex.get(edge.attacked())
+            }));
+        }
+    }
+
+    public int prepareAdm(ISolver solver) throws ContradictionException {
+        int nClauses = prepareCf(solver);
+        nClauses += getAllPredecessors().entrySet().parallelStream()
+                .mapToInt(entry -> entry.getValue().size())
+                .sum();
+        solver.setExpectedNumberOfClauses(nClauses);
+
+        for ( Vertex vertex : vertices ) {
+            for ( Vertex attacker : predecessors(vertex) ) {
+                IVecInt vecInt = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
+                for ( Vertex defender : predecessors(attacker) ) {
+                    vecInt.push(vertexToIndex.get(defender));
+                }
+                solver.addClause(vecInt);
+            }
+        }
+
+        return nClauses;
+    }
+
+    @Deprecated
     public String getCfDimacs() {
         if ( cfDimacs != null ) return cfDimacs;
         String header = "p cnf " + vertices.size() + " " + getFreeVertices().size() + edges.size() + "\n";
@@ -136,6 +201,7 @@ public class Graph implements Serializable {
         return (cfDimacs = header + getCfDimacsBody());
     }
 
+    @Deprecated
     public String getCfDimacsBody() {
         if ( cfDimacsBody != null ) return cfDimacsBody;
 
@@ -149,14 +215,15 @@ public class Graph implements Serializable {
         return cfDimacsBody = " " + freeVertices + " " + edges.parallelStream().unordered()
                 .collect(StringBuilder::new,
                         (dimacs, edge) -> dimacs
-                                .append(-vertexToIndex.get(edge.getAttacker()))
+                                .append(-vertexToIndex.get(edge.attacker()))
                                 .append(" ")
-                                .append(-vertexToIndex.get(edge.getAttacked()))
+                                .append(-vertexToIndex.get(edge.attacked()))
                                 .append(" 0 "),
                         StringBuilder::append)
                 .toString();
     }
 
+    @Deprecated
     public String getAdmDimacs() {
         if ( admDimacs != null ) return admDimacs;
 
@@ -177,6 +244,7 @@ public class Graph implements Serializable {
         return (admDimacs = header + getCfDimacsBody() + admDimacsBody);
     }
 
+    @Deprecated
     private String defenders(Vertex vertex) {
         return predecessors(vertex).parallelStream()
                 .collect(StringBuilder::new,
@@ -185,10 +253,12 @@ public class Graph implements Serializable {
                 .toString();
     }
 
+    @Deprecated
     private String attackers(Vertex vertex, Vertex attacker) {
         return -vertexToIndex.get(vertex) + " " + attackersOf(attacker) + " 0 ";
     }
 
+    @Deprecated
     private String attackersOf(Vertex vertex) {
         return predecessors(vertex).parallelStream().unordered()
                 .map(attacker -> vertexToIndex.get(attacker).toString())
@@ -227,7 +297,7 @@ public class Graph implements Serializable {
 
         public void removeVertex(Vertex vertex) {
             vertices.remove(vertex);
-            edges.removeIf(edge -> edge.getAttacker().equals(vertex) || edge.getAttacked().equals(vertex));
+            edges.removeIf(edge -> edge.attacker().equals(vertex) || edge.attacked().equals(vertex));
 
             allPredecessors.values().forEach(predecessor -> predecessor.remove(vertex));
             allPredecessors.remove(vertex);
@@ -243,7 +313,7 @@ public class Graph implements Serializable {
 
         public boolean removeVertices(Collection<Vertex> toBeRemoved) {
             final boolean b = vertices.removeAll(toBeRemoved);
-            edges.removeIf(edge -> toBeRemoved.contains(edge.getAttacker()) || toBeRemoved.contains(edge.getAttacked()));
+            edges.removeIf(edge -> toBeRemoved.contains(edge.attacker()) || toBeRemoved.contains(edge.attacked()));
 
             allPredecessors.values().forEach(predecessor -> predecessor.removeAll(toBeRemoved));
             allPredecessors.keySet().removeAll(toBeRemoved);
