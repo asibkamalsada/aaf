@@ -10,12 +10,8 @@ import org.sat4j.specs.TimeoutException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.CustomSolutionParser.writeSolutions;
 
@@ -99,26 +95,8 @@ public class StbMaxSat extends MaxSat {
                 unsat = false;
 
                 int[] model = problem.model();
-
-                final Map<Boolean, Set<Integer>> mappedSolution = Arrays.stream(model).boxed().parallel()
-                        .collect(Collectors.partitioningBy(literal -> literal > 0, Collectors.toSet()));
-
-                Set<Vertex> solution = mappedSolution.get(true).parallelStream()
-                        .map(graph::intToVertex).collect(Collectors.toSet());
-
-                Stream<Vertex> complementOfSolution =
-                        mappedSolution.get(false).parallelStream().map(graph::intToVertex);
-
-                //boolean isStable = false;
-
-                boolean isStable = complementOfSolution
-                        .allMatch(notContained ->
-                                solution.parallelStream().anyMatch(s -> graph.predecessors(notContained).contains(s)));
-
-                if ( isStable ) {
-                    solutions.add(graph.interpretSolution(model));
-                    //System.out.println(graph.interpretSolution(model));
-                }
+                solutions.add(graph.interpretSolution(model));
+                //System.out.println(graph.interpretSolution(model));
             }
             if ( unsat ) {
                 // do something for unsat case

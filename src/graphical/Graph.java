@@ -176,12 +176,35 @@ public class Graph implements Serializable {
 
     public int prepareStb(ISolver solver) throws  ContradictionException {
 
-        return prepareCf(solver);
+        int nClauses = prepareCf(solver);
+
+        nClauses += orderedVertices.size();
+
+        solver.setExpectedNumberOfClauses(nClauses);
+
+        for ( int index = 0; index < orderedVertices.size(); index++ ) {
+            Vertex vertex = orderedVertices.get(index);
+
+            Set<Vertex> predecessors = predecessors(vertex);
+            IVecInt clause = new VecInt(1 + predecessors.size());
+            // wenn ein Knoten nicht enthalten ist, muss mindestens einer der Angreifer enthalten sein
+            // -index -> p1 oder p2 oder p3
+            // index oder p1 oder p2 oder p3
+            clause.push(index + 1);
+
+            for ( Vertex attacker : predecessors ) {
+                clause.push(vertexToIndex.get(attacker));
+            }
+
+            solver.addClause(clause);
+
+        }
+
+        return nClauses;
 
     }
 
     //TODO test if that didnt actually break it
-
     public int preparePrf(ISolver solver) throws ContradictionException {
 
         return addGrounded(solver, prepareAdm(solver));
@@ -195,6 +218,7 @@ public class Graph implements Serializable {
                 .sum();
         solver.setExpectedNumberOfClauses(nClauses);
 
+        // TODO try to replace this by an indexed for loop over orderedVertices
         for ( Vertex vertex : vertices ) {
             for ( Vertex attacker : predecessors(vertex) ) {
                 IVecInt vecInt = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
@@ -234,7 +258,7 @@ public class Graph implements Serializable {
 
         nClauses += grdSolution.size();
 
-        solver.newVar(nClauses);
+        solver.setExpectedNumberOfClauses(nClauses);
 
         for ( Vertex grd : grdSolution ) {
             solver.addClause(new VecInt(new int[]{ vertexToIndex.get(grd) }));
