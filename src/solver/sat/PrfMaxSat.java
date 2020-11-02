@@ -22,7 +22,7 @@ public class PrfMaxSat extends MaxSat {
 
     public static void main(String[] args) throws IOException {
 
-        Path instance = CodeTesting.instances.resolve(CodeTesting.smallGrounded);
+        Path instance = CodeTesting.instances.resolve(CodeTesting.shortApx);
 
         Graph g = GraphParser.readGraph(instance);
 
@@ -31,7 +31,7 @@ public class PrfMaxSat extends MaxSat {
         solution.add(new Vertex("hallo"));
         myPrfSolutions.add(solution);*/
 
-
+/*
         final Set<Set<Vertex>> admSolutions = SolutionParser.parseAdmissible(instance, CodeTesting.conarg);
 
         System.out.println("admissible:");
@@ -43,17 +43,18 @@ public class PrfMaxSat extends MaxSat {
         System.out.println("grounded:");
         System.out.println(grdSolution);
 
-
+*/
         final Set<Set<Vertex>> prfSolutions = SolutionParser.parsePreferred(instance, CodeTesting.conarg);
 
-        System.out.println("preferred:");
-        prfSolutions.forEach(System.out::println);
+        /*System.out.println("preferred:");
+        prfSolutions.forEach(System.out::println);*/
 
 
+        long start = System.currentTimeMillis();
         final Set<Set<Vertex>> myPrfSolutions = new PrfMaxSat(g).findSolutions();
-
-        System.out.println("my preferred:");
-        myPrfSolutions.forEach(System.out::println);
+        System.out.println(instance + ";" + (System.currentTimeMillis() - start));
+        /*System.out.println("my preferred:");
+        myPrfSolutions.forEach(System.out::println);*/
 
 
         System.out.println(prfSolutions.equals(myPrfSolutions));

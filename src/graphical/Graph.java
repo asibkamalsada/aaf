@@ -174,8 +174,24 @@ public class Graph implements Serializable {
         }
     }
 
+    //TODO test if that didnt actually break it
     public int preparePrf(ISolver solver) throws ContradictionException {
-        return prepareAdm(solver);
+
+        int nClauses = prepareAdm(solver);
+
+        final Set<Vertex> grdSolution = new GroundedSolver(this).computeGrounded();
+
+        nClauses += grdSolution.size();
+
+        solver.newVar(nClauses);
+
+        for ( Vertex grd : grdSolution ) {
+            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(grd) }));
+        }
+
+        return nClauses;
+        // without preprocessing grounded, it is exponentially slower
+        //return prepareAdm(solver);
     }
 
     public int prepareAdm(ISolver solver) throws ContradictionException {

@@ -31,7 +31,7 @@ public abstract class MaxSat {
         ISolver solver = SolverFactory.newDefault();
         this.solver = new ModelIterator(solver);
         this.solver.setTimeout(TIMEOUT);
-        // TODO try it with this line
+        // tried it once and it worsened the runtime
         //this.solver.setDBSimplificationAllowed(true);
 
         try {
