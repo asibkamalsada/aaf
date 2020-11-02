@@ -174,26 +174,20 @@ public class Graph implements Serializable {
         }
     }
 
+    public int prepareStb(ISolver solver) throws  ContradictionException {
+
+        return prepareCf(solver);
+
+    }
+
     //TODO test if that didnt actually break it
+
     public int preparePrf(ISolver solver) throws ContradictionException {
 
-        int nClauses = prepareAdm(solver);
-
-        final Set<Vertex> grdSolution = new GroundedSolver(this).computeGrounded();
-
-        nClauses += grdSolution.size();
-
-        solver.newVar(nClauses);
-
-        for ( Vertex grd : grdSolution ) {
-            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(grd) }));
-        }
-
-        return nClauses;
+        return addGrounded(solver, prepareAdm(solver));
         // without preprocessing grounded, it is exponentially slower
         //return prepareAdm(solver);
     }
-
     public int prepareAdm(ISolver solver) throws ContradictionException {
         int nClauses = prepareCf(solver);
         nClauses += getAllPredecessors().entrySet().parallelStream()
@@ -233,6 +227,20 @@ public class Graph implements Serializable {
             throw new ContradictionException("grounded is empty :(");
         }
 
+    }
+
+    public int addGrounded(ISolver solver, int nClauses) throws ContradictionException {
+        final Set<Vertex> grdSolution = new GroundedSolver(this).computeGrounded();
+
+        nClauses += grdSolution.size();
+
+        solver.newVar(nClauses);
+
+        for ( Vertex grd : grdSolution ) {
+            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(grd) }));
+        }
+
+        return nClauses;
     }
 
     @Deprecated
@@ -320,6 +328,10 @@ public class Graph implements Serializable {
                 .filter(value -> value > 0)
                 .map(indexToVertex::get)
                 .collect(Collectors.toSet());
+    }
+
+    public Vertex intToVertex(int i){
+        return indexToVertex.get(Math.abs(i));
     }
 
 //----------------------------------------------------------------------------------------------------------------------
