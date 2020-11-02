@@ -163,7 +163,7 @@ public class Graph implements Serializable {
         solver.addAllClauses(cfClauses);
 */
         for ( Vertex vertex : getFreeVertices() ) {
-            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex), -vertexToIndex.get(vertex) }));
+            solver.registerLiteral(vertexToIndex.get(vertex));
         }
 
         for ( Edge edge : edges ) {
