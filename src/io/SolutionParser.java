@@ -35,62 +35,41 @@ public class SolutionParser {
     }
 
     public static Set<Vertex> parseGrounded(Path instancePath, Path conargPath) {
-        String[] commandArray = new String[]{
-                escapePath(conargPath),
-                "-e",
-                "grounded",
-                escapePath(instancePath)
-        };
-
-        final Set<Set<Vertex>> grdSolutions = getConargSets(commandArray);
+        final Set<Set<Vertex>> grdSolutions = parse(instancePath, conargPath, "grounded");
         if ( grdSolutions == null ) return null;
         return grdSolutions.stream().findAny().orElse(null);
     }
 
     public static Set<Set<Vertex>> parseConflictFree(Path instancePath, Path conargPath) {
-        String[] commandArray = new String[]{
-                escapePath(conargPath),
-                "-e",
-                "conflictfree",
-                escapePath(instancePath)
-        };
-
-        return getConargSets(commandArray);
+        return parse(instancePath, conargPath, "conflictfree");
     }
 
     public static Set<Set<Vertex>> parseAdmissible(Path instancePath, Path conargPath) {
-        String[] commandArray = new String[]{
-                escapePath(conargPath),
-                "-e",
-                "admissible",
-                escapePath(instancePath)
-        };
-
-        return getConargSets(commandArray);
+        return parse(instancePath, conargPath, "admissible");
     }
 
     public static Set<Set<Vertex>> parseComplete(Path instancePath, Path conargPath) {
-        String[] commandArray = new String[]{
-                escapePath(conargPath),
-                "-e",
-                "complete",
-                escapePath(instancePath)
-        };
-
-        return getConargSets(commandArray);
+        return parse(instancePath, conargPath, "complete");
     }
 
     public static Set<Set<Vertex>> parsePreferred(Path instancePath, Path conargPath) {
+        return parse(instancePath, conargPath, "preferred");
+    }
+
+    public static Set<Set<Vertex>> parseStable(Path instancePath, Path conargPath) {
+        return parse(instancePath, conargPath, "stable");
+    }
+
+    private static Set<Set<Vertex>> parse(Path instancePath, Path conargPath, String keyWord) {
         String[] commandArray = new String[]{
                 escapePath(conargPath),
                 "-e",
-                "preferred",
+                keyWord,
                 escapePath(instancePath)
         };
 
         return getConargSets(commandArray);
     }
-
 
     public static Set<Set<Vertex>> getConargSets(String[] command) {
         long start = System.currentTimeMillis();

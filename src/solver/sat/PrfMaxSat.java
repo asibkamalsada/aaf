@@ -7,18 +7,14 @@ import io.GraphParser;
 import io.SolutionParser;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
-import org.sat4j.specs.IConstr;
 import org.sat4j.specs.TimeoutException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.Set;
 
 public class PrfMaxSat extends MaxSat {
-
-    private Deque<IConstr> currentAdm;
 
     public static void main(String[] args) throws IOException {
 
@@ -73,8 +69,8 @@ public class PrfMaxSat extends MaxSat {
         problem = solver;
     }
 
+    // TODO try to solve preferred in other ways and compare performance
     @Override
-
     public Set<Set<Vertex>> findSolutions() {
 
         if ( unsat ) return new HashSet<>();
