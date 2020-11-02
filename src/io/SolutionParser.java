@@ -17,10 +17,12 @@ public class SolutionParser {
 
     private static final Pattern ARGUMENT_PATTERN = Pattern.compile("[^,\\[\\] ]+");
 
+    @Deprecated
     public static Set<Vertex> parseGrounded(Path path) throws IOException {
         return parseSingleSet(Files.lines(path).collect(Collectors.toList()).get(1));
     }
 
+    @Deprecated
     private static Set<Vertex> parseSingleSet(String input) {
         Set<Vertex> solution = new HashSet<>();
 
@@ -30,6 +32,19 @@ public class SolutionParser {
             solution.add(new Vertex(m.group()));
         }
         return solution;
+    }
+
+    public static Set<Vertex> parseGrounded(Path instancePath, Path conargPath) {
+        String[] commandArray = new String[]{
+                escapePath(conargPath),
+                "-e",
+                "grounded",
+                escapePath(instancePath)
+        };
+
+        final Set<Set<Vertex>> grdSolutions = getConargSets(commandArray);
+        if ( grdSolutions == null ) return null;
+        return grdSolutions.stream().findAny().orElse(null);
     }
 
     public static Set<Set<Vertex>> parseConflictFree(Path instancePath, Path conargPath) {

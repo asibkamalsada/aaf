@@ -4,6 +4,7 @@ import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
+import solver.GroundedSolver;
 
 import java.io.Serializable;
 import java.util.*;
@@ -193,6 +194,27 @@ public class Graph implements Serializable {
         return nClauses;
     }
 
+    public void prepareCmp(ISolver solver) throws ContradictionException {
+        int nClauses = prepareAdm(solver);
+
+        GroundedSolver groundedSolver = new GroundedSolver(this);
+        final Set<Vertex> grounded = groundedSolver.computeGrounded();
+
+        if ( !grounded.isEmpty() ) {
+
+            nClauses += grounded.size();
+
+            solver.setExpectedNumberOfClauses(nClauses);
+
+            for ( Vertex vertex : grounded ) {
+                solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex) }));
+            }
+        } else {
+            throw new ContradictionException("grounded is empty :(");
+        }
+
+    }
+
     @Deprecated
     public String getCfDimacs() {
         if ( cfDimacs != null ) return cfDimacs;
@@ -265,6 +287,8 @@ public class Graph implements Serializable {
                 .collect(Collectors.joining(" "));
     }
 
+//----------------------------------------------------------------------------------------------------------------------
+
     public Set<Set<Vertex>> interpretSolutions(Set<int[]> models) {
         return models.parallelStream()
                 .map(this::interpretSolution)
@@ -279,7 +303,6 @@ public class Graph implements Serializable {
     }
 
 //----------------------------------------------------------------------------------------------------------------------
-
 
     public static class TemporaryGraph extends Graph {
         public TemporaryGraph(Graph g) {

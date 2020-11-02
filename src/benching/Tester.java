@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class Tester {
 
-    public static boolean testGrounded(Set<Vertex> toBeTestedGrounded, Path groundedSolutionPath) throws IOException {
-        return toBeTestedGrounded.equals(SolutionParser.parseGrounded(groundedSolutionPath));
+    public static boolean testGrounded(Set<Vertex> result, Path groundedSolutionPath, Path conargPath) throws IOException {
+        return result.equals(SolutionParser.parseGrounded(groundedSolutionPath, conargPath));
     }
 
     public static boolean testConflictFree(Set<Set<Vertex>> results, Path instancePath, Path conargPath) {

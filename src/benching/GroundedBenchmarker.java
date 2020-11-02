@@ -25,7 +25,7 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
 
     @Override
     public boolean isResultCorrect(Set<Vertex> result, Path instancePath) throws IOException {
-        return Tester.testGrounded(result, solutionPath(instancePath));
+        return Tester.testGrounded(result, solutionPath(instancePath), conargPath);
     }
 
     public static void main(String[] args) {
