@@ -23,6 +23,7 @@ public class CodeTesting {
 
     public static Path customSolutions = root.resolve("custom-solutions");
 
+
     public static String longTgf = "T-4-grd_8020_3_4.tgf";
     /*
      * build: 2.431s
@@ -43,6 +44,7 @@ public class CodeTesting {
      *
      */
     public static String emptyGrounded = "Small-result-b83.apx";
+    public static String smallGrounded = "T-1-cascadespoint-or-us.gml.20.apx";
 
     public static String longApx = "T-4-grd_8020_3_4.apx";
     public static String shortApx = "B-1-BA_40_60_2.apx";

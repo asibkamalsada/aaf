@@ -5,24 +5,32 @@ import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
 import io.SolutionParser;
+import org.sat4j.core.Vec;
+import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
+import org.sat4j.specs.IConstr;
+import org.sat4j.specs.TimeoutException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Deque;
+import java.util.HashSet;
 import java.util.Set;
 
-public class CmpMaxSat extends MaxSat {
+public class PrfMaxSat extends MaxSat {
+
+    private Deque<IConstr> currentAdm;
 
     public static void main(String[] args) throws IOException {
 
-        Path instance = CodeTesting.instances.resolve(CodeTesting.emptyGrounded);
+        Path instance = CodeTesting.instances.resolve(CodeTesting.selfMadeApx);
 
         Graph g = GraphParser.readGraph(instance);
 
-        /*myCmpSolution = new HashSet<>();
+        /*myPrfSolutions = new HashSet<>();
         Set<Vertex> solution = new HashSet<>();
         solution.add(new Vertex("hallo"));
-        myCmpSolution.add(solution);*/
+        myPrfSolutions.add(solution);*/
 
 
         final Set<Set<Vertex>> admSolutions = SolutionParser.parseAdmissible(instance, CodeTesting.conarg);
@@ -37,30 +45,31 @@ public class CmpMaxSat extends MaxSat {
         System.out.println(grdSolution);
 
 
-        final Set<Set<Vertex>> cmpSolutions = SolutionParser.parseComplete(instance, CodeTesting.conarg);
+        final Set<Set<Vertex>> prfSolutions = SolutionParser.parsePreferred(instance, CodeTesting.conarg);
 
-        System.out.println("complete:");
-        cmpSolutions.forEach(System.out::println);
-
-
-        final Set<Set<Vertex>> myCmpSolution = new CmpMaxSat(g).findSolutions();
-
-        System.out.println("my complete:");
-        myCmpSolution.forEach(System.out::println);
+        System.out.println("preferred:");
+        prfSolutions.forEach(System.out::println);
 
 
-        System.out.println(cmpSolutions.equals(myCmpSolution));
+        final Set<Set<Vertex>> myPrfSolutions = new PrfMaxSat(g).findSolutions();
 
-        //writeSolutions(myCmpSolution, System.currentTimeMillis() + ".kryo");
+        System.out.println("my preferred:");
+        myPrfSolutions.forEach(System.out::println);
+
+
+        System.out.println(prfSolutions.equals(myPrfSolutions));
+
+        //writeSolutions(myPrfSolutions, System.currentTimeMillis() + ".kryo");
     }
 
-    public CmpMaxSat(Graph graph) {
+    public PrfMaxSat(Graph graph) {
         super(graph);
     }
 
     @Override
     protected void prepareSolver() throws ContradictionException {
-        graph.prepareCmp(solver);
+        graph.preparePrf(solver);
+        //solver.setDBSimplificationAllowed(false);
         problem = solver;
     }
 

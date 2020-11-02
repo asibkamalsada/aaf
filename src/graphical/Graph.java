@@ -174,6 +174,10 @@ public class Graph implements Serializable {
         }
     }
 
+    public int preparePrf(ISolver solver) throws ContradictionException {
+        return prepareAdm(solver);
+    }
+
     public int prepareAdm(ISolver solver) throws ContradictionException {
         int nClauses = prepareCf(solver);
         nClauses += getAllPredecessors().entrySet().parallelStream()

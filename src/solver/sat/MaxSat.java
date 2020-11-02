@@ -2,7 +2,6 @@ package solver.sat;
 
 import graphical.Graph;
 import graphical.Vertex;
-import org.sat4j.core.VecInt;
 import org.sat4j.maxsat.SolverFactory;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IProblem;
@@ -10,9 +9,6 @@ import org.sat4j.specs.ISolver;
 import org.sat4j.specs.TimeoutException;
 import org.sat4j.tools.ModelIterator;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,7 +45,7 @@ public abstract class MaxSat {
 
     public Set<Set<Vertex>> findSolutions() {
 
-        if (unsat) return new HashSet<>();
+        if ( unsat ) return new HashSet<>();
 
         long start = System.currentTimeMillis();
 

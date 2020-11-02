@@ -26,6 +26,11 @@ public class Tester {
         return results.equals(SolutionParser.parseComplete(instancePath, conargPath));
     }
 
+    public static boolean testPreferred(Set<Set<Vertex>> results, Path instancePath, Path conargPath) {
+        return results.equals(SolutionParser.parsePreferred(instancePath, conargPath));
+    }
+
+
     public static boolean iterativeTest(SemanticIterator solver, Set<Set<Vertex>> correctResult) {
         Set<Vertex> oneSolution;
         long counter = 0;
