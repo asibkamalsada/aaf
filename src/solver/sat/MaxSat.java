@@ -31,11 +31,13 @@ public abstract class MaxSat {
         ISolver solver = SolverFactory.newDefault();
         this.solver = new ModelIterator(solver);
         this.solver.setTimeout(TIMEOUT);
+        // TODO try it with this line
         //this.solver.setDBSimplificationAllowed(true);
 
         try {
             prepareSolver();
         } catch ( ContradictionException e ) {
+            e.printStackTrace();
             unsat = true;
         }
 

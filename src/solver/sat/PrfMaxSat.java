@@ -5,7 +5,6 @@ import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
 import io.SolutionParser;
-import org.sat4j.core.Vec;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IConstr;
@@ -23,7 +22,7 @@ public class PrfMaxSat extends MaxSat {
 
     public static void main(String[] args) throws IOException {
 
-        Path instance = CodeTesting.instances.resolve(CodeTesting.selfMadeApx);
+        Path instance = CodeTesting.instances.resolve(CodeTesting.smallGrounded);
 
         Graph g = GraphParser.readGraph(instance);
 
@@ -71,6 +70,47 @@ public class PrfMaxSat extends MaxSat {
         graph.preparePrf(solver);
         //solver.setDBSimplificationAllowed(false);
         problem = solver;
+    }
+
+    @Override
+
+    public Set<Set<Vertex>> findSolutions() {
+
+        if ( unsat ) return new HashSet<>();
+
+        long start = System.currentTimeMillis();
+
+        Set<Set<Vertex>> solutions = new HashSet<>();
+
+        // filename is given on the command line
+        try {
+            boolean unsat = true;
+
+            while ( problem.isSatisfiable() ) {
+                unsat = false;
+
+                int[] model = problem.model();
+                VecInt positiveLiterals = new VecInt();
+                for ( int literal : model ) {
+                    if ( literal > 0 ) positiveLiterals.push(literal);
+                }
+
+                if ( !problem.isSatisfiable(positiveLiterals) ) {
+                    solutions.add(graph.interpretSolution(model));
+                    //System.out.println(graph.interpretSolution(model));
+                }
+            }
+            if ( unsat ) {
+                // do something for unsat case
+                System.err.println("no solutions found");
+            }
+        } catch ( TimeoutException e ) {
+            System.err.println("Timeout, sorry!");
+            return null;
+        } finally {
+            //System.out.println(System.currentTimeMillis() - start);
+        }
+        return solutions;
     }
 
 }
