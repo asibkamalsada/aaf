@@ -57,7 +57,7 @@ public abstract class Benchmarker<T> {
             String testInstance = instancesPath.resolve(CodeTesting.selfMadeApx).toString();
             /*
              * meaning of the Long value:
-             *  <0 means incorrect result and abs(value) is the time spent to calculate it
+             *  <0 means incorrect result and abs(value) is the time spent to calculate it (includes timeouts)
              * ==0 means exception thrown
              *  >0 means correct result
              */

@@ -1,6 +1,6 @@
 package solver.sat;
 
-import benching.Tester;
+import verification.Tester;
 import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;

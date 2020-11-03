@@ -1,9 +1,9 @@
 package codeTesting;
 
-import benching.Tester;
+import verification.Tester;
 import graphical.Graph;
 import io.GraphParser;
-import io.SolutionParser;
+import verification.SolutionParser;
 import solver.iterative.AdmIterator;
 
 import java.nio.file.Path;

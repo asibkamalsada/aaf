@@ -4,7 +4,7 @@ import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
-import io.SolutionParser;
+import verification.SolutionParser;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;

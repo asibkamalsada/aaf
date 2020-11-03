@@ -4,7 +4,7 @@ import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
-import io.SolutionParser;
+import verification.SolutionParser;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
 
@@ -82,7 +82,6 @@ public class StbMaxSat extends MaxSat {
         problem = solver;
     }
 
-    // TODO try to solve stable in other ways and compare performance
     @Override
     public Set<Set<Vertex>> findSolutions() {
 

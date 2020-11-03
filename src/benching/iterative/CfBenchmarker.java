@@ -1,14 +1,13 @@
-package benching;
+package benching.iterative;
 
+import benching.Benchmarker;
 import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
-import io.SolutionParser;
+import verification.SolutionParser;
 import solver.iterative.CfSat;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Set;
 
 public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>> {

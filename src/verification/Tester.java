@@ -1,7 +1,6 @@
-package benching;
+package verification;
 
 import graphical.Vertex;
-import io.SolutionParser;
 import solver.iterative.SemanticIterator;
 
 import java.io.IOException;
@@ -30,7 +29,7 @@ public class Tester {
         return results.equals(SolutionParser.parsePreferred(instancePath, conargPath));
     }
 
-
+    @Deprecated
     public static boolean iterativeTest(SemanticIterator solver, Set<Set<Vertex>> correctResult) {
         Set<Vertex> oneSolution;
         long counter = 0;

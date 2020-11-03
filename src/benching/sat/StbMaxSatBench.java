@@ -1,9 +1,10 @@
-package benching;
+package benching.sat;
 
+import benching.Benchmarker;
 import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
-import io.SolutionParser;
+import verification.SolutionParser;
 import solver.sat.StbMaxSat;
 
 import java.io.IOException;

@@ -1,32 +1,35 @@
-package benching;
+package benching.iterative;
 
+import benching.Benchmarker;
 import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
-import solver.sat.AdmMaxSat;
+import verification.SolutionParser;
+import solver.iterative.AdmIterator;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 
-public class AdmMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
-    public AdmMaxSatBench(Path root) {
+public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
+    public AdmIterativeBench(Path root) {
         super(root);
     }
 
     @Override
     public Set<Set<Vertex>> calcResult(Graph g) {
-        return new AdmMaxSat(g).findSolutions();
+        return new AdmIterator(g).getSolutions();
     }
 
     @Override
     public boolean isResultCorrect(Set<Set<Vertex>> result, Path instancePath) throws IOException {
-        return Tester.testAdmissible(result, instancePath, conargPath);
+        return SolutionParser.parseAdmissible(instancePath, conargPath).equals(result);
     }
 
     public static void main(String[] args) {
-        Benchmarker<Set<Set<Vertex>>> admb = new AdmMaxSatBench(CodeTesting.root);
+        Benchmarker<Set<Set<Vertex>>> admb = new AdmIterativeBench(CodeTesting.root);
         admb.benchAndSave(false);
     }
+
 
 }
