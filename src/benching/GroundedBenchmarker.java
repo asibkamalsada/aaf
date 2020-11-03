@@ -25,7 +25,7 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
 
     @Override
     public boolean isResultCorrect(Set<Vertex> result, Path instancePath) throws IOException {
-        return Tester.testGrounded(result, solutionPath(instancePath), conargPath);
+        return Tester.testGrounded(result, instancePath, conargPath);
     }
 
     public static void main(String[] args) {
@@ -33,6 +33,7 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
         gb.benchAndSave(false);
     }
 
+    @Deprecated
     private Path solutionPath(Path instancePath) throws IOException {
         try ( Stream<Path> paths = Files.list(solutionsPath) ) {
             return paths

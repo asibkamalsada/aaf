@@ -80,7 +80,7 @@ public abstract class Benchmarker<T> {
                             else if ( checkResult && !isResultCorrect(result, path) ) {
                                 duration = -duration;
                             }
-                            output += path + ";" + duration;
+                            output += ";" + path + ";" + duration;
                             System.out.println(output);
                             return duration;
                         } catch ( Exception e ) {

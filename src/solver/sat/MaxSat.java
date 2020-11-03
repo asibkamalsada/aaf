@@ -20,24 +20,19 @@ public abstract class MaxSat {
 
     boolean unsat = false;
 
-    /**
-     * in seconds
-     **/
-    private final int TIMEOUT = 45;
-
     public MaxSat(Graph graph) {
         this.graph = graph;
 
         ISolver solver = SolverFactory.newDefault();
         this.solver = new ModelIterator(solver);
-        this.solver.setTimeout(TIMEOUT);
+        this.solver.setTimeout(45);
         // tried it once and it worsened the runtime
         //this.solver.setDBSimplificationAllowed(true);
 
         try {
             prepareSolver();
         } catch ( ContradictionException e ) {
-            e.printStackTrace();
+            System.err.println("trivially unsolvable");
             unsat = true;
         }
 
@@ -65,7 +60,7 @@ public abstract class MaxSat {
             }
             if ( unsat ) {
                 // do something for unsat case
-                System.err.println("no solutions found");
+                //System.err.println("no solutions found");
             }
         } catch ( TimeoutException e ) {
             System.err.println("Timeout, sorry!");
