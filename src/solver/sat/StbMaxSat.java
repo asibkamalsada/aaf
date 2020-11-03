@@ -54,7 +54,7 @@ public class StbMaxSat extends MaxSat {
 
 
         long start = System.currentTimeMillis();
-        final Set<Set<Vertex>> myStbSolutions = new StbMaxSat(g).findSolutions();
+        final Set<Set<Vertex>> myStbSolutions = new StbMaxSat(g, Integer.MAX_VALUE).findSolutions();
         System.out.println(instance + ";" + (System.currentTimeMillis() - start));
         System.out.println("my stable:");
         myStbSolutions.forEach(System.out::println);
@@ -65,6 +65,11 @@ public class StbMaxSat extends MaxSat {
         writeSolutions(stbSolutions, "stable-longApx.kryo");
     }
 
+    public StbMaxSat(Graph graph, int timeout) {
+        this(graph);
+        solver.setTimeout(timeout);
+    }
+
     public StbMaxSat(Graph graph) {
         super(graph);
     }
@@ -72,7 +77,7 @@ public class StbMaxSat extends MaxSat {
     @Override
     protected void prepareSolver() throws ContradictionException {
         graph.prepareStb(solver);
-        solver.setTimeout(Integer.MAX_VALUE);
+        //solver.setTimeout(Integer.MAX_VALUE);
         //solver.setDBSimplificationAllowed(false);
         problem = solver;
     }
