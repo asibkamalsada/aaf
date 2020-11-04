@@ -46,6 +46,8 @@ public class CodeTesting {
     public static String emptyGrounded = "Small-result-b83.apx";
     public static String smallGrounded = "T-1-cascadespoint-or-us.gml.20.apx";
 
+    public static String surabsVariable = "A-3-afinput_exp_acyclic_depvary_step6_batch_yyy04.apx";
+
     public static String longApx = "T-4-grd_8020_3_4.apx";
     public static String shortApx = "B-1-BA_40_60_2.apx";
 

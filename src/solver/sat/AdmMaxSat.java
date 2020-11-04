@@ -1,39 +1,45 @@
 package solver.sat;
 
 import codeTesting.CodeTesting;
+import com.sun.org.apache.bcel.internal.classfile.Code;
 import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
 import org.sat4j.specs.ContradictionException;
+import verification.SolutionParser;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Set;
 
 public class AdmMaxSat extends MaxSat {
 
     public static void main(String[] args) throws IOException {
 
-        Graph g = GraphParser.readGraph(
-                CodeTesting.instances.resolve(CodeTesting.longApx)
-        );
+        Path instance = CodeTesting.instances.resolve(CodeTesting.surabsVariable);
+
+
+        Graph g = GraphParser.readGraph(instance);
 
         AdmMaxSat solver = new AdmMaxSat(g);
 
-        Set<Set<Vertex>> solutions;
-        solutions = solver.findSolutions();
+        Set<Set<Vertex>> mySolutions;
+        mySolutions = solver.findSolutions();
 
-        System.out.println(solutions.size());
+        System.out.println("my adm:");
+        mySolutions.forEach(System.out::println);
 
-        /*solutions = new HashSet<>();
-        Set<Vertex> solution = new HashSet<>();
-        solution.add(new Vertex("hallo"));
-        solutions.add(solution);*/
+        final Set<Set<Vertex>> admSolutions = SolutionParser.parseAdmissible(instance, CodeTesting.conarg);
 
+        System.out.println("adm:");
+        admSolutions.forEach(System.out::println);
 
-        /*System.out.println(Tester.testAdmissible(solutions,
+        System.out.println(mySolutions.equals(admSolutions));
+
+        /*System.out.println(Tester.testAdmissible(mySolutions,
                 CodeTesting.instances.resolve(CodeTesting.longApx), CodeTesting.conarg));*/
 
-        //writeSolutions(solutions, System.currentTimeMillis() + ".kryo");
+        //writeSolutions(mySolutions, System.currentTimeMillis() + ".kryo");
     }
 
     public AdmMaxSat(Graph graph) {
@@ -44,6 +50,7 @@ public class AdmMaxSat extends MaxSat {
     @Override
     protected void prepareSolver() throws ContradictionException {
         graph.prepareAdm(solver);
+        solver.setTimeout(Integer.MAX_VALUE);
         problem = solver;
     }
 

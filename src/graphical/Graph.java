@@ -4,6 +4,7 @@ import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
+import org.sat4j.specs.IteratorInt;
 import solver.GroundedSolver;
 
 import java.io.Serializable;
@@ -174,7 +175,7 @@ public class Graph implements Serializable {
         }
     }
 
-    public int prepareStb(ISolver solver) throws  ContradictionException {
+    public int prepareStb(ISolver solver) throws ContradictionException {
 
         int nClauses = prepareCf(solver);
 
@@ -211,6 +212,7 @@ public class Graph implements Serializable {
         // without preprocessing grounded, it is exponentially slower
         //return prepareAdm(solver);
     }
+
     public int prepareAdm(ISolver solver) throws ContradictionException {
         int nClauses = prepareCf(solver);
         nClauses += getAllPredecessors().entrySet().parallelStream()
@@ -221,11 +223,11 @@ public class Graph implements Serializable {
         // TODO try to replace this by an indexed for loop over orderedVertices
         for ( Vertex vertex : vertices ) {
             for ( Vertex attacker : predecessors(vertex) ) {
-                IVecInt vecInt = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
+                IVecInt clause = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
                 for ( Vertex defender : predecessors(attacker) ) {
-                    vecInt.push(vertexToIndex.get(defender));
+                    clause.push(vertexToIndex.get(defender));
                 }
-                solver.addClause(vecInt);
+                solver.addClause(clause);
             }
         }
 
@@ -233,25 +235,98 @@ public class Graph implements Serializable {
     }
 
     public void prepareCmp(ISolver solver) throws ContradictionException {
-        int nClauses = prepareAdm(solver);
+        //int nClauses = prepareAdm(solver);
+        int nClauses = prepareCf(solver);
 
         GroundedSolver groundedSolver = new GroundedSolver(this);
         final Set<Vertex> grounded = groundedSolver.computeGrounded();
 
-        if ( !grounded.isEmpty() ) {
+        nClauses += grounded.size();
 
-            nClauses += grounded.size();
+        solver.setExpectedNumberOfClauses(nClauses);
 
-            solver.setExpectedNumberOfClauses(nClauses);
-
-            for ( Vertex vertex : grounded ) {
-                solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex) }));
-            }
-        } else {
-            throw new ContradictionException("grounded is empty :(");
+        long start = System.currentTimeMillis();
+        for ( Vertex vertex : grounded ) {
+            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex) }));
         }
 
+        //TODO find correct expected number of clauses
+
+        nClauses += Math.pow(getAllPredecessors().entrySet().parallelStream()
+                .mapToInt(entry -> entry.getValue().size())
+                .sum(), 1.4);
+
+        solver.setExpectedNumberOfClauses(nClauses);
+
+        for ( Vertex vertex : orderedVertices ) {
+            List<IVecInt> clauses = new ArrayList<>();
+            for ( Vertex attacker : predecessors(vertex) ) {
+                IVecInt admClause = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
+                if ( clauses.isEmpty() ) {
+                    for ( Vertex defender : predecessors(attacker) ) {
+                        admClause.push(vertexToIndex.get(defender));
+                        clauses.add(new VecInt(new int[]{ -vertexToIndex.get(defender) }));
+                    }
+                } else {
+                    boolean admRead = false;
+                    for ( ListIterator<IVecInt> iterator = clauses.listIterator(); iterator.hasNext(); ) {
+                        IVecInt cmpClause = iterator.next();
+                        iterator.remove();
+                        for ( Vertex defender : predecessors(attacker) ) {
+                            if ( !admRead ) admClause.push(vertexToIndex.get(defender));
+                            IVecInt newVecInt = new VecInt();
+                            for ( IteratorInt it = cmpClause.iterator(); it.hasNext(); ) {
+                                newVecInt.push(it.next());
+                            }
+                            newVecInt.push(-vertexToIndex.get(defender));
+                            iterator.add(newVecInt);
+                        }
+                        admRead = true;
+                    }
+                }
+                solver.addClause(admClause);
+            }
+            for ( IVecInt clause : clauses ) {
+                clause.push(vertexToIndex.get(vertex));
+                solver.addClause(clause);
+            }
+            System.out.println(vertex + " is done");
+        }
+        System.out.println("took " + (System.currentTimeMillis() - start));
+
+        /*final Map<Vertex, Set<Set<Vertex>>> humongousMapping = orderedVertices.parallelStream()
+                .collect(Collectors.toMap(vertex -> vertex,
+                        vertex -> predecessors(vertex).parallelStream()
+                                .map(this::predecessors)
+                                .collect(Collectors.toSet())));
+
+        humongousMapping.replaceAll((key, value) -> computeCombinations3(value));*/
+
+
     }
+
+    public static <T> Set<Set<T>> appendElements(Set<Set<T>> combinations, Set<T> extraElements) {
+        return combinations.parallelStream().flatMap(oldCombination -> extraElements.parallelStream().map(extra -> {
+            Set<T> combinationWithExtra = new HashSet<>(oldCombination);
+            combinationWithExtra.add(extra);
+            return combinationWithExtra;
+        })).collect(Collectors.toSet());
+    }
+
+    public static <T> Set<Set<T>> computeCombinations3(Set<Set<T>> Sets) {
+        Set<Set<T>> currentCombinations = Collections.singleton(Collections.emptySet());
+        for ( Set<T> set : Sets ) {
+            currentCombinations = appendElements(currentCombinations, set);
+        }
+        return currentCombinations;
+    }
+
+    public static void main(String[] args) {
+        Set<Vertex> a = new HashSet<>(Arrays.asList(new Vertex("a"), new Vertex("b"), new Vertex("c")));
+        Set<Vertex> b = new HashSet<>(Arrays.asList(new Vertex("1"), new Vertex("2"), new Vertex("3")));
+        System.out.println(computeCombinations3(new HashSet<>(Arrays.asList(a, b))));
+    }
+
 
     public int addGrounded(ISolver solver, int nClauses) throws ContradictionException {
         final Set<Vertex> grdSolution = new GroundedSolver(this).computeGrounded();
@@ -341,6 +416,14 @@ public class Graph implements Serializable {
 
 //----------------------------------------------------------------------------------------------------------------------
 
+    public Set<Set<Vertex>> interpretClauses(List<IVecInt> clauses) {
+        return clauses.parallelStream().map(this::interpretClause).collect(Collectors.toSet());
+    }
+
+    public Set<Vertex> interpretClause(IVecInt clause) {
+        return Arrays.stream(clause.toArray()).mapToObj(this::intToVertex).collect(Collectors.toSet());
+    }
+
     public Set<Set<Vertex>> interpretSolutions(Set<int[]> models) {
         return models.parallelStream()
                 .map(this::interpretSolution)
@@ -354,7 +437,7 @@ public class Graph implements Serializable {
                 .collect(Collectors.toSet());
     }
 
-    public Vertex intToVertex(int i){
+    public Vertex intToVertex(int i) {
         return indexToVertex.get(Math.abs(i));
     }
 
