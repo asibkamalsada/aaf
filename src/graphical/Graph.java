@@ -4,7 +4,6 @@ import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.ISolver;
 import org.sat4j.specs.IVecInt;
-import org.sat4j.specs.IteratorInt;
 import solver.GroundedSolver;
 
 import java.io.Serializable;
@@ -236,7 +235,14 @@ public class Graph implements Serializable {
 
     public void prepareCmp(ISolver solver) throws ContradictionException {
         //int nClauses = prepareAdm(solver);
-        int nClauses = prepareCf(solver);
+
+        int nClauses = 0;
+        try {
+            nClauses = prepareCf(solver);
+        } catch ( ContradictionException e ) {
+            System.err.println("contradiction building cf");
+            throw e;
+        }
 
         GroundedSolver groundedSolver = new GroundedSolver(this);
         final Set<Vertex> grounded = groundedSolver.computeGrounded();
@@ -247,48 +253,42 @@ public class Graph implements Serializable {
 
         long start = System.currentTimeMillis();
         for ( Vertex vertex : grounded ) {
-            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex) }));
+            try {
+                solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex) }));
+            } catch ( ContradictionException e ) {
+                System.err.println("contradiction adding grounded");
+                throw e;
+            }
         }
 
         //TODO find correct expected number of clauses
 
-        nClauses += Math.pow(getAllPredecessors().entrySet().parallelStream()
+        nClauses += 2 * getAllPredecessors().entrySet().parallelStream()
                 .mapToInt(entry -> entry.getValue().size())
-                .sum(), 1.4);
+                .sum();
 
         solver.setExpectedNumberOfClauses(nClauses);
 
         for ( Vertex vertex : orderedVertices ) {
-            List<IVecInt> clauses = new ArrayList<>();
+            if ( grounded.contains(vertex) ) continue;
+            IVecInt cmpClause = new VecInt(new int[]{ vertexToIndex.get(vertex) });
             for ( Vertex attacker : predecessors(vertex) ) {
-                IVecInt admClause = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
-                if ( clauses.isEmpty() ) {
-                    for ( Vertex defender : predecessors(attacker) ) {
-                        admClause.push(vertexToIndex.get(defender));
-                        clauses.add(new VecInt(new int[]{ -vertexToIndex.get(defender) }));
-                    }
-                } else {
-                    boolean admRead = false;
-                    for ( ListIterator<IVecInt> iterator = clauses.listIterator(); iterator.hasNext(); ) {
-                        IVecInt cmpClause = iterator.next();
-                        iterator.remove();
-                        for ( Vertex defender : predecessors(attacker) ) {
-                            if ( !admRead ) admClause.push(vertexToIndex.get(defender));
-                            IVecInt newVecInt = new VecInt();
-                            for ( IteratorInt it = cmpClause.iterator(); it.hasNext(); ) {
-                                newVecInt.push(it.next());
-                            }
-                            newVecInt.push(-vertexToIndex.get(defender));
-                            iterator.add(newVecInt);
-                        }
-                        admRead = true;
-                    }
+
+                cmpClause.push(vertexToIndex.get(attacker));
+
+                try {
+                    solver.addClause(new VecInt(new int[]{ -vertexToIndex.get(vertex), -vertexToIndex.get(attacker) }));
+                } catch ( ContradictionException e ) {
+                    System.err.println("contradiction adding admissible");
+                    throw e;
                 }
-                solver.addClause(admClause);
             }
-            for ( IVecInt clause : clauses ) {
-                clause.push(vertexToIndex.get(vertex));
-                solver.addClause(clause);
+            try {
+                solver.addClause(cmpClause);
+            } catch ( ContradictionException e ) {
+                System.err.println("contradiction adding complete");
+                e.printStackTrace();
+                throw e;
             }
             System.out.println(vertex + " is done");
         }

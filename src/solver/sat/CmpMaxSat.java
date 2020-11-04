@@ -18,7 +18,7 @@ public class CmpMaxSat extends MaxSat {
 
     public static void main(String[] args) throws IOException {
 
-        Path testingInstance = CodeTesting.instances.resolve(CodeTesting.surabsVariable);
+        Path testingInstance = CodeTesting.instances.resolve(CodeTesting.emptyGrounded);
 
         Graph g = GraphParser.readGraph(testingInstance);
 
