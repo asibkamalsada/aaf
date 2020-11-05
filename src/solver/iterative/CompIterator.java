@@ -20,7 +20,7 @@ public class CompIterator extends AdmIterator {
 
         // next chosen Vertex must not be blacklisted and not lead to a visited Path
 
-        final Optional<Vertex> nextO = getAllowedMoves().stream().findAny();
+        final Optional<Vertex> nextO = getAllowedMove();
 
         if ( nextO.isPresent() ) {
             move(nextO.get());

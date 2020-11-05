@@ -17,7 +17,7 @@ public class AdmMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     @Override
-    public Set<Set<Vertex>> calcResult(Graph g) {
+    public Set<Set<Vertex>> calcResult(Graph g, boolean checkResult) {
         return new AdmMaxSat(g).findSolutions();
     }
 

@@ -1,9 +1,7 @@
 package graphical;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class SearchTree {
@@ -12,6 +10,12 @@ public class SearchTree {
 
     public SearchTree(Graph g) {
         doneBranches = new HashSet<>();
+    }
+
+    public boolean addDoneBranch(List<Vertex> currentResult, Vertex potentialStep) {
+        List<Vertex> doneBranch = new ArrayList<>(currentResult);
+        doneBranch.add(potentialStep);
+        return doneBranches.add(doneBranch);
     }
 
     public boolean addDoneBranch(List<Vertex> visited) {

@@ -5,6 +5,7 @@ import graphical.SearchTree;
 import graphical.Vertex;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public abstract class SemanticIterator {
@@ -43,7 +44,7 @@ public abstract class SemanticIterator {
 
             // next chosen Vertex must not be blacklisted and not lead to a visited Path
 
-            final Optional<Vertex> nextO = getAllowedMoves().stream().findAny();
+            final Optional<Vertex> nextO = getAllowedMove();
 
             if ( nextO.isPresent() ) {
                 move(nextO.get());
@@ -59,21 +60,28 @@ public abstract class SemanticIterator {
         currentResult.add(nextO);
     }
 
-    public Set<Vertex> getAllowedMoves() {
-        Set<Vertex> allowedMoves;
+    public Optional<Vertex> getAllowedMove() {
+        Optional<Vertex> allowedMove;
 
-        while ( (allowedMoves =
-                orderedVertices.parallelStream().filter(this::isAllowed).collect(Collectors.toSet()))
-                .isEmpty()
+        while ( !(allowedMove =
+                // parallelization of this step is of huge importance
+                orderedVertices.parallelStream().filter(this::isAllowed).findAny())
+                .isPresent()
                 && donePaths.addDoneBranch(currentResult)
                 && !currentResult.isEmpty() ) {
             Vertex lastPoppedVertex = currentResult.remove(currentResult.size() - 1);
 
             whitelistRelatedVertices(lastPoppedVertex);
         }
-        return allowedMoves;
+/*
+        for ( Map.Entry<Vertex, List<Vertex>> donePath : semanticallyNotAllowed.entrySet() ) {
+            donePaths.addDoneBranch(donePath.getValue(), donePath.getKey());
+        }
+*/
+        return allowedMove;
     }
 
+    // TODO try to cache the result of additionalRestriction(vertex) somehow
     protected boolean isAllowed(Vertex vertex) {
         return (blacklist.get(vertex) == 0) && !donePaths.isDone(currentResult, vertex) && additionalRestriction(vertex);
     }
@@ -112,17 +120,18 @@ public abstract class SemanticIterator {
         Set<Set<Vertex>> results = new HashSet<>();
         Set<Vertex> result;
         while ( (result = next()) != null ) {
-            System.out.println(result);
+            //System.out.println(result);
             results.add(result);
         }
         return results;
     }
 
-    public void printSolutions() {
+    public Set<Set<Vertex>> printSolutions() {
         Set<Vertex> solution;
         while ( (solution = next()) != null ) {
             System.out.println(solution);
         }
+        return null;
     }
 
 }

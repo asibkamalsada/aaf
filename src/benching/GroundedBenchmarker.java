@@ -20,7 +20,7 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
     }
 
     @Override
-    public Set<Vertex> calcResult(Graph g) {
+    public Set<Vertex> calcResult(Graph g, boolean checkResult) {
         return new GroundedSolver(g).computeGrounded();
     }
 

@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,18 +66,19 @@ public abstract class Benchmarker<T> {
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith("apx"))
                     .filter(path -> !path.toAbsolutePath().toString().equals(testInstance))
+                    .unordered()
                     //.sorted(Comparator.comparingLong(path -> path.toFile().length()))
-                    //.limit(20)
+                    .limit(20)
                     .collect(Collectors.toMap(path -> path, path -> {
                         String output = "";
                         try {
                             Graph g = GraphParser.readGraph(path);
                             long start = System.currentTimeMillis();
-                            T result = calcResult(g);
+                            T result = calcResult(g, checkResult);
                             long duration = System.currentTimeMillis() - start;
                             //do not allow 0
                             duration++;
-                            if ( result == null ) duration = -duration;
+                            if ( checkResult && result == null ) duration = -duration;
                             else if ( checkResult && !isResultCorrect(result, path) ) {
                                 duration = -duration;
                             }
@@ -99,7 +101,7 @@ public abstract class Benchmarker<T> {
 
     //public abstract Set<Set<Vertex>> iterativeResults(Graph g);
 
-    public abstract T calcResult(Graph g);
+    public abstract T calcResult(Graph g, boolean checkResult);
 
     //public abstract boolean isResultCorrect(Graph g, Path instancePath) throws IOException;
 

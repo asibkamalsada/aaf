@@ -17,8 +17,8 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     @Override
-    public Set<Set<Vertex>> calcResult(Graph g) {
-        return new CfSat(g).getSolutions();
+    public Set<Set<Vertex>> calcResult(Graph g, boolean checkResult) {
+        return checkResult ? new CfSat(g).getSolutions() : new CfSat(g).printSolutions();
     }
 
     @Override

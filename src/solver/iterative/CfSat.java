@@ -45,7 +45,7 @@ public class CfSat extends SemanticIterator {
     protected boolean isAllowed(Vertex vertex) {
             return !currentResult.contains(vertex)
                     && additionalRestriction(vertex)
-                    && !donePaths.isDone(currentResult, vertex);
+                    && donePaths.isDone(currentResult, vertex);
     }
 
     @Override

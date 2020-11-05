@@ -17,8 +17,8 @@ public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     @Override
-    public Set<Set<Vertex>> calcResult(Graph g) {
-        return new AdmIterator(g).getSolutions();
+    public Set<Set<Vertex>> calcResult(Graph g, boolean checkResult) {
+        return checkResult ? new AdmIterator(g).getSolutions() : new AdmIterator(g).printSolutions();
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
 
     public static void main(String[] args) {
         Benchmarker<Set<Set<Vertex>>> admb = new AdmIterativeBench(CodeTesting.root);
-        admb.benchAndSave(false);
+        admb.benchAndSave(true, "limit20checked");
     }
 
 

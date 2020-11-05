@@ -4,8 +4,8 @@ import benching.Benchmarker;
 import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
-import verification.SolutionParser;
 import solver.sat.StbMaxSat;
+import verification.SolutionParser;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,7 +17,7 @@ public class StbMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     @Override
-    public Set<Set<Vertex>> calcResult(Graph g) {
+    public Set<Set<Vertex>> calcResult(Graph g, boolean checkResult) {
         return new StbMaxSat(g, 45).findSolutions();
     }
 
