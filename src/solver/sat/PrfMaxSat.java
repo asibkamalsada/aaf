@@ -4,13 +4,14 @@ import codeTesting.CodeTesting;
 import graphical.Graph;
 import graphical.Vertex;
 import io.GraphParser;
-import verification.SolutionParser;
 import org.sat4j.core.VecInt;
 import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.TimeoutException;
+import verification.SolutionParser;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,7 +19,7 @@ public class PrfMaxSat extends MaxSat {
 
     public static void main(String[] args) throws IOException {
 
-        Path instance = CodeTesting.instances.resolve(CodeTesting.shortApx);
+        Path instance = CodeTesting.instances.resolve(CodeTesting.selfMadeApx);
 
         Graph g = GraphParser.readGraph(instance);
 
@@ -40,8 +41,11 @@ public class PrfMaxSat extends MaxSat {
         System.out.println(grdSolution);
 
 */
+        long start0 = System.currentTimeMillis();
         final Set<Set<Vertex>> prfSolutions = SolutionParser.parsePreferred(instance, CodeTesting.conarg);
-
+        System.out.println("preferred conarg took: " + (System.currentTimeMillis() - start0));
+        System.out.println("preferred:");
+        prfSolutions.forEach(System.out::println);
         /*System.out.println("preferred:");
         prfSolutions.forEach(System.out::println);*/
 
@@ -60,6 +64,7 @@ public class PrfMaxSat extends MaxSat {
 
     public PrfMaxSat(Graph graph) {
         super(graph);
+        solver.setTimeout(Integer.MAX_VALUE);
     }
 
     @Override
@@ -92,10 +97,15 @@ public class PrfMaxSat extends MaxSat {
                     if ( literal > 0 ) positiveLiterals.push(literal);
                 }
 
-                if ( !problem.isSatisfiable(positiveLiterals) ) {
-                    solutions.add(graph.interpretSolution(model));
-                    //System.out.println(graph.interpretSolution(model));
+                while ( problem.isSatisfiable(positiveLiterals) ) {
+                    model = problem.model();
+                    positiveLiterals = new VecInt();
+                    for (int literal :model){
+                        if ( literal > 0 ) positiveLiterals.push(literal);
+                    }
                 }
+                //System.out.println(graph.interpretSolution(model));
+                solutions.add(graph.interpretSolution(model));
             }
             if ( unsat ) {
                 // do something for unsat case

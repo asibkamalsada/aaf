@@ -10,6 +10,7 @@ import org.sat4j.specs.TimeoutException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -20,7 +21,7 @@ public class StbMaxSat extends MaxSat {
     public static void main(String[] args) throws IOException {
 
         Path instance = CodeTesting.instances.resolve(CodeTesting.longApx);
-
+        instance = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19\\instances\\n320p5q2_n.apx");
         Graph g = GraphParser.readGraph(instance);
 
         /*myStbSolutions = new HashSet<>();
@@ -62,7 +63,7 @@ public class StbMaxSat extends MaxSat {
 
         System.out.println(stbSolutions.equals(myStbSolutions));
 
-        writeSolutions(stbSolutions, "stable-longApx.kryo");
+        writeSolutions(stbSolutions, instance.getFileName().toString() + "_stb.kryo");
     }
 
     public StbMaxSat(Graph graph, int timeout) {

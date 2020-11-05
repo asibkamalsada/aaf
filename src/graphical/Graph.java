@@ -233,8 +233,8 @@ public class Graph implements Serializable {
         return nClauses;
     }
 
+    // TODO not working
     public void prepareCmp(ISolver solver) throws ContradictionException {
-        //int nClauses = prepareAdm(solver);
 
         int nClauses = 0;
         try {
@@ -246,6 +246,8 @@ public class Graph implements Serializable {
 
         GroundedSolver groundedSolver = new GroundedSolver(this);
         final Set<Vertex> grounded = groundedSolver.computeGrounded();
+
+        if (grounded.isEmpty()) throw new ContradictionException("empty grounded, sry");
 
         nClauses += grounded.size();
 
@@ -270,14 +272,17 @@ public class Graph implements Serializable {
         solver.setExpectedNumberOfClauses(nClauses);
 
         for ( Vertex vertex : orderedVertices ) {
-            if ( grounded.contains(vertex) ) continue;
             IVecInt cmpClause = new VecInt(new int[]{ vertexToIndex.get(vertex) });
             for ( Vertex attacker : predecessors(vertex) ) {
 
                 cmpClause.push(vertexToIndex.get(attacker));
 
+                IVecInt admClause = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
+                for ( Vertex defender : predecessors(attacker) ) {
+                    admClause.push(vertexToIndex.get(defender));
+                }
                 try {
-                    solver.addClause(new VecInt(new int[]{ -vertexToIndex.get(vertex), -vertexToIndex.get(attacker) }));
+                    solver.addClause(admClause);
                 } catch ( ContradictionException e ) {
                     System.err.println("contradiction adding admissible");
                     throw e;
@@ -545,6 +550,10 @@ public class Graph implements Serializable {
 
     public Map<Vertex, Set<Vertex>> getAllPredecessors() {
         return allPredecessors;
+    }
+
+    public List<Vertex> getOrderedVertices() {
+        return orderedVertices;
     }
 
 }
