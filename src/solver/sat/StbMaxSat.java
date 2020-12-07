@@ -22,7 +22,9 @@ public class StbMaxSat extends MaxSat {
 
         Path instance = CodeTesting.instances.resolve(CodeTesting.longApx);
         instance = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19\\instances\\n320p5q2_n.apx");
-        Graph g = GraphParser.readGraph(instance);
+        instance = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19\\instances\\A-2" +
+                "-afinput_exp_cycles_depvary_step4_batch_yyy03.apx");
+        Graph g = GraphParser.readStbKernelGraph(instance);
 
         /*myStbSolutions = new HashSet<>();
         Set<Vertex> solution = new HashSet<>();

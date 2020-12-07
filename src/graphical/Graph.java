@@ -21,7 +21,7 @@ public class Graph implements Serializable {
     private String cfDimacsBody = null;
 
     protected final Set<Vertex> vertices;
-    protected final Set<Edge> edges;
+    protected Set<Edge> edges;
 
     protected Map<Vertex, Set<Vertex>> allSuccessors;
     protected Map<Vertex, Set<Vertex>> allPredecessors;
@@ -139,22 +139,15 @@ public class Graph implements Serializable {
         solver.newVar(vertices.size());
         int nClauses = getFreeVertices().size() + edges.size();
         solver.setExpectedNumberOfClauses(nClauses);
-
-        addCfClauses(solver);
-
-        return nClauses;
-    }
-
-    private void addCfClauses(ISolver solver) throws ContradictionException {
 /*
         Vec<IVecInt> atomarClauses = getFreeVertices().stream()//.parallel().unordered()
-                .map(vertex -> new VecInt(new int[]{ vertexToIndex.get(vertex), -vertexToIndex.get(vertex) }))
+                .map(vertex -> new VecInt(new int[]{ vertexToInt(vertex), -vertexToInt(vertex) }))
                 .collect(Vec::new, Vec::push, Vec::moveTo);
 
         Vec<IVecInt> cfClauses = edges.stream()//.parallel().unordered()
                 .map(edge -> new VecInt(new int[]{
-                        -vertexToIndex.get(edge.attacker()),
-                        -vertexToIndex.get(edge.attacked())
+                        -vertexToInt(edge.attacker()),
+                        -vertexToInt(edge.attacked())
                 }))
                 .collect(Vec::new, Vec::push, Vec::moveTo);
 
@@ -163,15 +156,16 @@ public class Graph implements Serializable {
         solver.addAllClauses(cfClauses);
 */
         for ( Vertex vertex : getFreeVertices() ) {
-            solver.registerLiteral(vertexToIndex.get(vertex));
+            solver.registerLiteral(vertexToInt(vertex));
         }
 
         for ( Edge edge : edges ) {
             solver.addClause(new VecInt(new int[]{
-                    -vertexToIndex.get(edge.attacker()),
-                    -vertexToIndex.get(edge.attacked())
+                    -vertexToInt(edge.attacker()),
+                    -vertexToInt(edge.attacked())
             }));
         }
+        return nClauses;
     }
 
     public int prepareStb(ISolver solver) throws ContradictionException {
@@ -222,9 +216,9 @@ public class Graph implements Serializable {
         // TODO try to replace this by an indexed for loop over orderedVertices
         for ( Vertex vertex : vertices ) {
             for ( Vertex attacker : predecessors(vertex) ) {
-                IVecInt clause = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
+                IVecInt clause = new VecInt(new int[]{ -vertexToInt(vertex) });
                 for ( Vertex defender : predecessors(attacker) ) {
-                    clause.push(vertexToIndex.get(defender));
+                    clause.push(vertexToInt(defender));
                 }
                 solver.addClause(clause);
             }
@@ -247,7 +241,7 @@ public class Graph implements Serializable {
         GroundedSolver groundedSolver = new GroundedSolver(this);
         final Set<Vertex> grounded = groundedSolver.computeGrounded();
 
-        if (grounded.isEmpty()) throw new ContradictionException("empty grounded, sry");
+        if ( grounded.isEmpty() ) throw new ContradictionException("empty grounded, sry");
 
         nClauses += grounded.size();
 
@@ -256,7 +250,7 @@ public class Graph implements Serializable {
         long start = System.currentTimeMillis();
         for ( Vertex vertex : grounded ) {
             try {
-                solver.addClause(new VecInt(new int[]{ vertexToIndex.get(vertex) }));
+                solver.addClause(new VecInt(new int[]{ vertexToInt(vertex) }));
             } catch ( ContradictionException e ) {
                 System.err.println("contradiction adding grounded");
                 throw e;
@@ -272,14 +266,14 @@ public class Graph implements Serializable {
         solver.setExpectedNumberOfClauses(nClauses);
 
         for ( Vertex vertex : orderedVertices ) {
-            IVecInt cmpClause = new VecInt(new int[]{ vertexToIndex.get(vertex) });
+            IVecInt cmpClause = new VecInt(new int[]{ vertexToInt(vertex) });
             for ( Vertex attacker : predecessors(vertex) ) {
 
-                cmpClause.push(vertexToIndex.get(attacker));
+                cmpClause.push(vertexToInt(attacker));
 
-                IVecInt admClause = new VecInt(new int[]{ -vertexToIndex.get(vertex) });
+                IVecInt admClause = new VecInt(new int[]{ -vertexToInt(vertex) });
                 for ( Vertex defender : predecessors(attacker) ) {
-                    admClause.push(vertexToIndex.get(defender));
+                    admClause.push(vertexToInt(defender));
                 }
                 try {
                     solver.addClause(admClause);
@@ -341,7 +335,7 @@ public class Graph implements Serializable {
         solver.setExpectedNumberOfClauses(nClauses);
 
         for ( Vertex grd : grdSolution ) {
-            solver.addClause(new VecInt(new int[]{ vertexToIndex.get(grd) }));
+            solver.addClause(new VecInt(new int[]{ vertexToInt(grd) }));
         }
 
         return nClauses;
@@ -361,7 +355,7 @@ public class Graph implements Serializable {
 
         String freeVertices = getFreeVertices().parallelStream().unordered()
                 .map(vertex -> {
-                    int index = vertexToIndex.get(vertex);
+                    int index = vertexToInt(vertex);
                     return index + " " + -index + " 0";
                 })
                 .collect(Collectors.joining(" "));
@@ -369,9 +363,9 @@ public class Graph implements Serializable {
         return cfDimacsBody = " " + freeVertices + " " + edges.parallelStream().unordered()
                 .collect(StringBuilder::new,
                         (dimacs, edge) -> dimacs
-                                .append(-vertexToIndex.get(edge.attacker()))
+                                .append(-vertexToInt(edge.attacker()))
                                 .append(" ")
-                                .append(-vertexToIndex.get(edge.attacked()))
+                                .append(-vertexToInt(edge.attacked()))
                                 .append(" 0 "),
                         StringBuilder::append)
                 .toString();
@@ -409,13 +403,13 @@ public class Graph implements Serializable {
 
     @Deprecated
     private String attackers(Vertex vertex, Vertex attacker) {
-        return -vertexToIndex.get(vertex) + " " + attackersOf(attacker) + " 0 ";
+        return -vertexToInt(vertex) + " " + attackersOf(attacker) + " 0 ";
     }
 
     @Deprecated
     private String attackersOf(Vertex vertex) {
         return predecessors(vertex).parallelStream().unordered()
-                .map(attacker -> vertexToIndex.get(attacker).toString())
+                .map(attacker -> String.valueOf(vertexToInt(attacker)))
                 .collect(Collectors.joining(" "));
     }
 
@@ -444,6 +438,10 @@ public class Graph implements Serializable {
 
     public Vertex intToVertex(int i) {
         return indexToVertex.get(Math.abs(i));
+    }
+
+    public int vertexToInt(Vertex v) {
+        return vertexToIndex.get(v);
     }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -542,6 +540,10 @@ public class Graph implements Serializable {
 
     public Set<Edge> getEdges() {
         return edges;
+    }
+
+    public void setEdges(Set<Edge> edges) {
+        this.edges = edges;
     }
 
     public Map<Vertex, Set<Vertex>> getAllSuccessors() {

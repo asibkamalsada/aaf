@@ -20,6 +20,11 @@ public class GroundedBenchmarker extends Benchmarker<Set<Vertex>> {
     }
 
     @Override
+    public Graph getKernel(Path path) throws IOException {
+        return null;
+    }
+
+    @Override
     public Set<Vertex> calcResult(Graph g, boolean checkResult) {
         return new GroundedSolver(g).computeGrounded();
     }

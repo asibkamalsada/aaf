@@ -17,6 +17,11 @@ public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     @Override
+    public Graph getKernel(Path path) throws IOException {
+        return null;
+    }
+
+    @Override
     public Set<Set<Vertex>> calcResult(Graph g, boolean checkResult) {
         return checkResult ? new AdmIterator(g).getSolutions() : new AdmIterator(g).printSolutions();
     }
@@ -28,7 +33,7 @@ public class AdmIterativeBench extends Benchmarker<Set<Set<Vertex>>> {
 
     public static void main(String[] args) {
         Benchmarker<Set<Set<Vertex>>> admb = new AdmIterativeBench(CodeTesting.root);
-        admb.benchAndSave(true, "limit20checked");
+        admb.benchAndSave(true, "limit20incrementalSATchecked");
     }
 
 

@@ -1,6 +1,7 @@
 package benching.sat;
 
 import benching.Benchmarker;
+import io.GraphParser;
 import verification.Tester;
 import codeTesting.CodeTesting;
 import graphical.Graph;
@@ -17,6 +18,11 @@ public class AdmMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
     }
 
     @Override
+    public Graph getKernel(Path path) throws IOException {
+        return GraphParser.readAdmKernelGraph(path);
+    }
+
+    @Override
     public Set<Set<Vertex>> calcResult(Graph g, boolean checkResult) {
         return new AdmMaxSat(g).findSolutions();
     }
@@ -28,7 +34,7 @@ public class AdmMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
 
     public static void main(String[] args) {
         Benchmarker<Set<Set<Vertex>>> admb = new AdmMaxSatBench(CodeTesting.root);
-        admb.benchAndSave(false);
+        admb.benchAndSave(true, "fullInfoRun16gb");
     }
 
 }

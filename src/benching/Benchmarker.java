@@ -62,29 +62,45 @@ public abstract class Benchmarker<T> {
              * ==0 means exception thrown
              *  >0 means correct result
              */
+            System.out.println("conarg;path;edges;kernelEdges;vertices;time;kernelTime");
             final Map<Path, Long> benchingResults = paths//.parallel()
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith("apx"))
                     .filter(path -> !path.toAbsolutePath().toString().equals(testInstance))
-                    .unordered()
+                    //.unordered()
                     //.sorted(Comparator.comparingLong(path -> path.toFile().length()))
-                    .limit(20)
+                    .sorted()
+                    //.limit(20)
                     .collect(Collectors.toMap(path -> path, path -> {
                         String output = "";
                         try {
-                            Graph g = GraphParser.readGraph(path);
+                            Graph g_unprocessed = GraphParser.readGraph(path);
+                            Graph g = getKernel(path);
+
+                            if (g_unprocessed.getEdges().equals(g.getEdges())) return 0L;
+
+                            output += ";" + path + ";" + g_unprocessed.getEdges().size() + ";" + g.getEdges().size() + ";" + g.getVertices().size() + ";";
+
                             long start = System.currentTimeMillis();
-                            T result = calcResult(g, checkResult);
+                            T result = calcResult(g_unprocessed, checkResult);
                             long duration = System.currentTimeMillis() - start;
                             //do not allow 0
                             duration++;
-                            if ( checkResult && result == null ) duration = -duration;
-                            else if ( checkResult && !isResultCorrect(result, path) ) {
-                                duration = -duration;
+                            output += duration + ";";
+
+
+                            long k_start = System.currentTimeMillis();
+                            T k_result = calcResult(g, checkResult);
+                            long k_duration = System.currentTimeMillis() - k_start;
+                            //do not allow 0
+                            k_duration++;
+                            if ( checkResult && k_result == null ) k_duration = -k_duration;
+                            else if ( checkResult && !isResultCorrect(k_result, path) ) {
+                                k_duration = -k_duration;
                             }
-                            output += ";" + path + ";" + duration;
+                            output += k_duration;
                             System.out.println(output);
-                            return duration;
+                            return 0L;
                         } catch ( Exception e ) {
                             output += e.toString() + '\n';
                             System.out.println(output);
@@ -98,6 +114,8 @@ public abstract class Benchmarker<T> {
             throw e;
         }
     }
+
+    public abstract Graph getKernel(Path path) throws IOException;
 
     //public abstract Set<Set<Vertex>> iterativeResults(Graph g);
 

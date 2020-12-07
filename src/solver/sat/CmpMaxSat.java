@@ -63,35 +63,6 @@ public class CmpMaxSat extends MaxSat {
         problem = solver;
     }
 
-    @Override
-    public Set<Set<Vertex>> findSolutions() {
-
-        if ( unsat ) return Collections.emptySet();
-
-        long start = System.currentTimeMillis();
-
-        Set<Set<Vertex>> solutions = new HashSet<>();
-
-        // filename is given on the command line
-        try {
-            boolean unsat = true;
-
-            while ( problem.isSatisfiable() ) {
-                unsat = false;
-                solutions.add(graph.interpretSolution(problem.model()));
-            }
-            if ( unsat ) {
-            }
-        } catch ( TimeoutException e ) {
-            System.err.println("Timeout, sorry!");
-            return null;
-        } finally {
-            //System.out.println(System.currentTimeMillis() - start);
-        }
-        return solutions;
-    }
-
-
 }
 
 

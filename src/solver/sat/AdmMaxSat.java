@@ -9,21 +9,23 @@ import verification.SolutionParser;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 
 public class AdmMaxSat extends MaxSat {
 
     public static void main(String[] args) throws IOException {
 
-        Path instance = CodeTesting.instances.resolve(CodeTesting.shortApx);
-
+        Path instance = CodeTesting.instances.resolve(CodeTesting.emptyGrounded);
+        instance = Paths.get("C:\\Users\\Kamalsada\\Documents\\Asib\\uni\\ba_baumann\\iccma19" +
+                "\\instances\\A-2-afinput_exp_cycles_depvary_step4_batch_yyy03.apx");
 
         final Set<Set<Vertex>> admSolutions = SolutionParser.parseAdmissible(instance, CodeTesting.conarg);
 
         System.out.println("adm:");
         admSolutions.forEach(System.out::println);
 
-        Graph g = GraphParser.readGraph(instance);
+        Graph g = GraphParser.readAdmKernelGraph(instance);
 
         AdmMaxSat solver = new AdmMaxSat(g);
 
@@ -49,7 +51,7 @@ public class AdmMaxSat extends MaxSat {
     @Override
     protected void prepareSolver() throws ContradictionException {
         graph.prepareAdm(solver);
-        solver.setTimeout(Integer.MAX_VALUE);
+        solver.setTimeout(5*60);
         problem = solver;
     }
 

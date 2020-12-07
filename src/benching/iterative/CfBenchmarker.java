@@ -7,6 +7,7 @@ import graphical.Vertex;
 import verification.SolutionParser;
 import solver.iterative.CfSat;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
 
@@ -14,6 +15,11 @@ public class CfBenchmarker extends Benchmarker<Set<Set<Vertex>>> {
 
     public CfBenchmarker(Path root) {
         super(root);
+    }
+
+    @Override
+    public Graph getKernel(Path path) throws IOException {
+        return null;
     }
 
     @Override

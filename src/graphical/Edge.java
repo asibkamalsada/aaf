@@ -32,6 +32,10 @@ public class Edge implements Serializable {
         return attacked;
     }
 
+    public boolean isSelfAttack() {
+        return attacker.equals(attacked);
+    }
+
     @Override
     public String toString() {
         return attacker + "->" + attacked;
