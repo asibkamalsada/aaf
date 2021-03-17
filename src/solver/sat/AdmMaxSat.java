@@ -10,6 +10,7 @@ import verification.SolutionParser;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Set;
 
 public class AdmMaxSat extends MaxSat {
@@ -51,7 +52,7 @@ public class AdmMaxSat extends MaxSat {
     @Override
     protected void prepareSolver() throws ContradictionException {
         graph.prepareAdm(solver);
-        solver.setTimeout(5*60);
+        solver.setTimeout(15 * 60);
         problem = solver;
     }
 

@@ -2,14 +2,12 @@ package benching;
 
 import codeTesting.CodeTesting;
 import graphical.Graph;
-import io.GraphParser;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -74,19 +72,20 @@ public abstract class Benchmarker<T> {
                     .collect(Collectors.toMap(path -> path, path -> {
                         String output = "";
                         try {
-                            Graph g_unprocessed = GraphParser.readGraph(path);
+                            //Graph g_unprocessed = GraphParser.readGraph(path);
                             Graph g = getKernel(path);
 
-                            if (g_unprocessed.getEdges().equals(g.getEdges())) return 0L;
+                            //if (g_unprocessed.getEdges().equals(g.getEdges())) return 0L;
 
-                            output += ";" + path + ";" + g_unprocessed.getEdges().size() + ";" + g.getEdges().size() + ";" + g.getVertices().size() + ";";
-
+                            output += ";" + path + ";" /*+ g_unprocessed.getEdges().size()
+                             */ + ";" + g.getEdges().size() + ";" + g.getVertices().size() + ";";
+                            /*
                             long start = System.currentTimeMillis();
                             T result = calcResult(g_unprocessed, checkResult);
                             long duration = System.currentTimeMillis() - start;
                             //do not allow 0
-                            duration++;
-                            output += duration + ";";
+                            duration++;*/
+                            output += /*duration + */";";
 
 
                             long k_start = System.currentTimeMillis();
@@ -94,10 +93,10 @@ public abstract class Benchmarker<T> {
                             long k_duration = System.currentTimeMillis() - k_start;
                             //do not allow 0
                             k_duration++;
-                            if ( checkResult && k_result == null ) k_duration = -k_duration;
-                            else if ( checkResult && !isResultCorrect(k_result, path) ) {
-                                k_duration = -k_duration;
-                            }
+
+                            if ( checkResult )
+                                if ( k_result == null || !isResultCorrect(k_result, path) ) k_duration = -k_duration;
+
                             output += k_duration;
                             System.out.println(output);
                             return 0L;

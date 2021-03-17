@@ -34,7 +34,7 @@ public class AdmMaxSatBench extends Benchmarker<Set<Set<Vertex>>> {
 
     public static void main(String[] args) {
         Benchmarker<Set<Set<Vertex>>> admb = new AdmMaxSatBench(CodeTesting.root);
-        admb.benchAndSave(true, "fullInfoRun16gb");
+        admb.benchAndSave(true, "fullInfoRun12gb");
     }
 
 }
